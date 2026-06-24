@@ -1,428 +1,487 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>Dashboard | SX2 LADOR — Premium License Manager</title>
-    
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- Font Awesome -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" rel="stylesheet" crossorigin="anonymous">
-    
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title><?= BASE_NAME ?? 'PANEL' ?> // MAINFRAME</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<?= link_tag('assets/css/cyberpunk.css') ?>
+<style>
+  /* ============ MAINFRAME LAYOUT ============ */
+  body{
+    background:#03040a !important;
+    color:#cfe7ee;
+    overflow-x:hidden;
+    font-family:'Share Tech Mono',monospace;
+  }
+  /* matrix code rain */
+  .matrix-rain{
+    position:fixed; inset:0; pointer-events:none; z-index:0;
+    opacity:.08;
+    background-image:
+      repeating-linear-gradient(0deg, transparent 0 14px, rgba(0,245,255,.4) 14px 15px),
+      repeating-linear-gradient(90deg, transparent 0 200px, rgba(57,255,20,.06) 200px 220px);
+  }
+  /* perspective grid floor */
+  .grid-floor{
+    position:fixed; left:0; right:0; bottom:0; height:55vh; pointer-events:none; z-index:0;
+    background:
+      linear-gradient(transparent 40%, rgba(0,245,255,.05) 100%),
+      repeating-linear-gradient(90deg, rgba(0,245,255,.25) 0 1px, transparent 1px 64px),
+      repeating-linear-gradient(0deg, rgba(0,245,255,.25) 0 1px, transparent 1px 64px);
+    transform: perspective(700px) rotateX(58deg);
+    transform-origin: bottom;
+    mask-image: linear-gradient(to top, #000 30%, transparent 90%);
+  }
+  /* Top system bar - 4 gauges */
+  .sys-bar{ position:relative; z-index:5; }
+  .gauge{
+    width:90px; height:90px; position:relative;
+  }
+  .gauge .ring{ position:absolute; inset:0; border-radius:50%; border:2px solid rgba(0,245,255,.25); }
+  .gauge .needle{
+    position:absolute; left:50%; bottom:50%; width:3px; height:35px; background:linear-gradient(180deg,#fff,var(--cy-cyan,#00f5ff));
+    transform-origin: bottom center; transform: rotate(-90deg);
+    box-shadow: 0 0 8px var(--cy-cyan,#00f5ff);
+    transition: transform 1s ease-in-out;
+  }
+  .gauge .center{
+    position:absolute; left:50%; top:50%; width:8px; height:8px; border-radius:50%;
+    transform: translate(-50%,-50%); background:var(--cy-cyan,#00f5ff); box-shadow:0 0 10px var(--cy-cyan,#00f5ff);
+  }
+  .gauge .tick{
+    position:absolute; left:50%; top:4px; width:1px; height:6px; background:rgba(0,245,255,.4);
+    transform-origin: 50% 41px;
+  }
+  .gauge .lbl{
+    position:absolute; left:0; right:0; bottom:-18px; text-align:center;
+    font:700 9px 'Share Tech Mono',monospace; color:var(--cy-cyan,#00f5ff); letter-spacing:.18em;
+  }
+  .gauge .val{
+    position:absolute; left:0; right:0; top:62%; text-align:center;
+    font:700 14px 'Share Tech Mono',monospace; color:#fff;
+  }
 
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
-                        mono: ['Space Grotesk', 'monospace'],
-                    },
-                }
-            }
-        }
-    </script>
+  /* TAB nav */
+  .nav-tabs{ display:flex; gap:0; border-bottom:1px solid rgba(0,245,255,.3); position:relative; z-index:5; }
+  .nav-tabs a{
+    padding:10px 22px; color:#7fb3c2; text-decoration:none;
+    font:700 11px 'Share Tech Mono',monospace; letter-spacing:.2em;
+    border:1px solid transparent; border-bottom:0;
+    background: linear-gradient(180deg, transparent, rgba(0,245,255,.04));
+    position:relative;
+    clip-path: polygon(8px 0, 100% 0, calc(100% - 8px) 100%, 0 100%);
+    margin-right:-6px;
+  }
+  .nav-tabs a.on{
+    color:var(--cy-cyan,#00f5ff);
+    background: linear-gradient(180deg, rgba(0,245,255,.18), rgba(0,245,255,.05));
+    border-color: var(--cy-cyan,#00f5ff);
+    text-shadow: 0 0 8px rgba(0,245,255,.6);
+  }
+  .nav-tabs a:hover{ color:#fff; }
 
-    <style>
-        body {
-            background-color: #0b0f1c;
-            background-image: 
-                radial-gradient(circle at 10% 10%, rgba(99, 102, 241, 0.1) 0%, transparent 50%),
-                radial-gradient(circle at 90% 70%, rgba(139, 92, 246, 0.12) 0%, transparent 55%),
-                radial-gradient(circle at 40% 90%, rgba(236, 72, 153, 0.06) 0%, transparent 45%);
-            background-attachment: fixed;
-            color: #f1f5f9;
-            font-family: 'Inter', sans-serif;
-        }
-        
-        .glass-panel {
-            background: rgba(15, 23, 42, 0.65);
-            backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-        }
+  /* HUD PANEL với corner brackets */
+  .hud{
+    position:relative; background:rgba(5,8,14,.85); border:1px solid rgba(0,245,255,.22);
+    padding:14px; margin-bottom:14px;
+    box-shadow: inset 0 0 0 1px rgba(0,245,255,.05), 0 0 18px rgba(0,245,255,.06);
+  }
+  .hud::before, .hud::after{
+    content:""; position:absolute; width:14px; height:14px;
+    border:2px solid var(--cy-cyan,#00f5ff);
+    filter: drop-shadow(0 0 4px var(--cy-cyan,#00f5ff));
+  }
+  .hud::before{ left:-2px; top:-2px; border-right:0; border-bottom:0; }
+  .hud::after{ right:-2px; bottom:-2px; border-left:0; border-top:0;
+    border-color: var(--cy-magenta,#ff2bd6); filter: drop-shadow(0 0 4px var(--cy-magenta,#ff2bd6));
+  }
+  .hud-title{
+    display:flex; justify-content:space-between; align-items:center;
+    font:700 10px 'Share Tech Mono',monospace; letter-spacing:.2em;
+    color:var(--cy-cyan,#00f5ff); padding-bottom:8px; margin-bottom:10px;
+    border-bottom:1px dashed rgba(0,245,255,.3);
+  }
+  .hud-title .dot{ width:8px; height:8px; border-radius:50%; background:var(--cy-green,#39ff14); box-shadow:0 0 8px var(--cy-green,#39ff14); animation: bk 1.4s infinite; }
+  @keyframes bk{ 0%,100%{ opacity:1 } 50%{ opacity:.3 } }
 
-        .sidebar-link {
-            transition: all 0.2s cubic-bezier(0.2, 0.9, 0.4, 1.1);
-        }
-        
-        .sidebar-link:hover, .sidebar-link.active {
-            background: rgba(99, 102, 241, 0.2);
-            color: white;
-            border-right: 3px solid #8b5cf6;
-        }
+  /* TERMINAL log */
+  .term{ font:12px 'Share Tech Mono',monospace; max-height:340px; overflow:hidden; }
+  .term .ln{ opacity:0; animation: lnshow .3s forwards; padding:1px 0; }
+  .term .ln.gn{ color:var(--cy-green,#39ff14); }
+  .term .ln.cy{ color:var(--cy-cyan,#00f5ff); }
+  .term .ln.mg{ color:var(--cy-magenta,#ff2bd6); }
+  .term .ln.am{ color:#ffb800; }
+  .term .ln.dm{ color:#7fb3c2; }
+  @keyframes lnshow{ to{ opacity:1 } }
 
-        .stat-card {
-            transition: transform 0.25s ease, box-shadow 0.25s ease;
-        }
-        
-        .stat-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 12px 28px -8px rgba(0, 0, 0, 0.3);
-        }
-        
-        ::-webkit-scrollbar {
-            width: 5px;
-        }
-        ::-webkit-scrollbar-track {
-            background: rgba(30, 41, 59, 0.5); 
-        }
-        ::-webkit-scrollbar-thumb {
-            background: rgba(139, 92, 246, 0.4); 
-            border-radius: 10px;
-        }
-        
-        /* Dropdown menu for 3-dot button */
-        .reseller-dropdown {
-            position: absolute;
-            right: 0;
-            top: 100%;
-            margin-top: 0.5rem;
-            background: rgba(15, 23, 42, 0.98);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            border-radius: 1rem;
-            padding: 0.5rem;
-            min-width: 170px;
-            z-index: 100;
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
-        }
-        
-        .reseller-dropdown a, .reseller-dropdown button {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            padding: 0.6rem 1rem;
-            border-radius: 0.75rem;
-            font-size: 0.75rem;
-            font-weight: 500;
-            transition: all 0.2s;
-            width: 100%;
-            text-align: left;
-            cursor: pointer;
-            color: #cbd5e1;
-        }
-        
-        .reseller-dropdown a:hover, .reseller-dropdown button:hover {
-            background: rgba(99, 102, 241, 0.25);
-            color: white;
-        }
-        
-        .dropdown-btn {
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        
-        .dropdown-btn:hover {
-            background: rgba(99, 102, 241, 0.3);
-            transform: scale(1.05);
-        }
-        
-        @keyframes fadeSlideUp {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        .animate-fade-in {
-            animation: fadeSlideUp 0.35s ease-out forwards;
-        }
-    </style>
+  /* HEX GRID licenses */
+  .hex-grid{ display:grid; grid-template-columns: repeat(10, 1fr); gap:2px 4px; padding:6px; }
+  .hex{
+    position:relative; aspect-ratio: 1/1.15;
+    clip-path: polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%);
+    background: rgba(0,245,255,.06); border:1px solid rgba(0,245,255,.2);
+    transition: all .2s;
+  }
+  .hex:nth-child(even){ margin-top:14%; }
+  .hex.act{ background: rgba(57,255,20,.4); box-shadow: inset 0 0 8px var(--cy-green,#39ff14); border-color: var(--cy-green,#39ff14); }
+  .hex.exp{ background: rgba(255,184,0,.35); border-color:#ffb800; }
+  .hex.dead{ background: rgba(255,43,214,.25); border-color: var(--cy-magenta,#ff2bd6); }
+  .hex:hover{ transform: scale(1.15); z-index:3; cursor:pointer; box-shadow: 0 0 16px var(--cy-cyan,#00f5ff); }
+
+  /* RADAR (profile) */
+  .radar{ width:100%; aspect-ratio:1; position:relative; }
+  .radar .ring{ position:absolute; inset:0; border-radius:50%; border:1px dashed rgba(0,245,255,.3); }
+  .radar .ring:nth-child(2){ inset:15%; } .radar .ring:nth-child(3){ inset:30%; } .radar .ring:nth-child(4){ inset:45%; }
+  .radar .sweep{
+    position:absolute; inset:0; border-radius:50%;
+    background: conic-gradient(from 0deg, transparent 80%, rgba(0,245,255,.4) 95%, transparent 100%);
+    animation: sw 3.5s linear infinite;
+  }
+  @keyframes sw{ to{ transform: rotate(360deg) } }
+  .radar .core{
+    position:absolute; left:50%; top:50%; width:32px; height:32px; border-radius:50%;
+    transform: translate(-50%,-50%);
+    background: linear-gradient(135deg, var(--cy-cyan,#00f5ff), var(--cy-magenta,#ff2bd6));
+    box-shadow: 0 0 20px var(--cy-cyan,#00f5ff); display:flex; align-items:center; justify-content:center;
+    color:#000; font-weight:900;
+  }
+  .radar .blip{
+    position:absolute; width:6px; height:6px; border-radius:50%; background:var(--cy-green,#39ff14);
+    box-shadow: 0 0 8px var(--cy-green,#39ff14);
+  }
+
+  /* TICKER bottom */
+  .ticker{
+    position:fixed; left:0; right:0; bottom:0; height:34px; z-index:50;
+    background:rgba(0,8,16,.95); border-top:1px solid var(--cy-cyan,#00f5ff);
+    overflow:hidden; display:flex; align-items:center;
+    box-shadow: 0 -8px 24px rgba(0,245,255,.15);
+  }
+  .ticker .label{ background:var(--cy-cyan,#00f5ff); color:#000; padding:6px 12px; font:700 10px 'Share Tech Mono',monospace; letter-spacing:.2em; margin-right:12px; }
+  .ticker .track{
+    flex:1; overflow:hidden; white-space:nowrap;
+    font:12px 'Share Tech Mono',monospace; color:#cfe7ee;
+  }
+  .ticker .track span{ display:inline-block; padding-right:60px; animation: tk 38s linear infinite; }
+  @keyframes tk{ from{ transform:translateX(0) } to{ transform:translateX(-50%) } }
+  .ticker .sep{ color:var(--cy-magenta,#ff2bd6); padding:0 8px; }
+
+  /* BOOT overlay */
+  .boot{ position:fixed; inset:0; background:#000; z-index:9998; color:var(--cy-green,#39ff14); font:13px 'Share Tech Mono',monospace; padding:24px; animation: bootout 0s 2.4s forwards; }
+  @keyframes bootout{ to{ opacity:0; visibility:hidden } }
+  .boot .ln{ opacity:0; animation: lnshow .2s forwards; }
+</style>
 </head>
-<body class="flex h-screen overflow-hidden text-sm">
+<body class="min-h-screen pb-12">
 
-    <!-- Mobile Sidebar Overlay -->
-    <div id="sidebarOverlay" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 hidden md:hidden" onclick="toggleSidebar()"></div>
+<!-- Boot screen -->
+<div class="boot" id="boot">
+  <div class="ln" style="animation-delay:.0s">&gt; SX2.LADOR MAINFRAME v2.6.0 (build 2026.06)</div>
+  <div class="ln" style="animation-delay:.15s">&gt; Initializing neural net link...... OK</div>
+  <div class="ln" style="animation-delay:.30s">&gt; Mounting /vault/keys ............. OK</div>
+  <div class="ln" style="animation-delay:.45s">&gt; Loading session [<?= esc($user->username ?? 'guest') ?>] OK</div>
+  <div class="ln" style="animation-delay:.6s">&gt; Quantum cipher handshake ........ OK</div>
+  <div class="ln" style="animation-delay:.75s">&gt; Establishing uplink to MAINFRAME ... OK</div>
+  <div class="ln" style="animation-delay:.95s" class="cy">&gt; All systems nominal. Entering control grid...</div>
+  <div class="ln" style="animation-delay:1.2s; color:#fff">&gt; <span style="background:#fff;color:#000;padding:0 6px;animation: bk 1s infinite">▮ READY</span></div>
+</div>
 
-    <!-- Sidebar -->
-    <aside id="sidebar" class="fixed inset-y-0 left-0 z-50 w-64 glass-panel transform -translate-x-full transition-transform duration-300 ease-in-out md:relative md:translate-x-0 md:flex md:flex-col flex-col justify-between border-r border-white/10 shadow-2xl">
-        <div>
-            <div class="h-20 flex items-center px-6 border-b border-white/10">
-                <div class="w-9 h-9 rounded flex items-center justify-center mr-3 shadow-lg" style="background:linear-gradient(135deg,var(--cy-cyan,#00f5ff),var(--cy-magenta,#ff2bd6));box-shadow:0 0 14px rgba(0,245,255,.5)">
-                    <i class="fas fa-shield-alt text-black text-base"></i>
-                </div>
-                <div>
-                    <h1 class="font-bold text-white text-lg tracking-tight" style="font-family:'Orbitron',sans-serif">SX2.LADOR</h1>
-                    <span class="text-[10px] text-slate-400" style="font-family:'Share Tech Mono',monospace">// LICENSE.NODE</span>
-                </div>
-            </div>
-            <nav class="mt-6 px-3 space-y-1" style="font-family:'Share Tech Mono',monospace">
-                <div class="px-3 mb-2 text-[10px] font-bold text-slate-500 uppercase tracking-widest">▸ MAIN</div>
-                <a href="<?= site_url('dashboard') ?>" class="sidebar-link active flex items-center px-3 py-3 rounded text-slate-300"><i class="fas fa-chart-pie w-6 mr-2 text-indigo-400"></i><span>OVERVIEW</span></a>
-                <a href="<?= site_url('keys/generate') ?>" class="sidebar-link flex items-center px-3 py-3 rounded text-slate-300"><i class="fas fa-bolt w-6 mr-2"></i><span>GENERATE_KEYS</span></a>
-                <a href="<?= site_url('keys') ?>" class="sidebar-link flex items-center px-3 py-3 rounded text-slate-300"><i class="fas fa-key w-6 mr-2"></i><span>LICENSE_MGR</span></a>
-                <div class="px-3 mt-6 mb-2 text-[10px] font-bold text-slate-500 uppercase tracking-widest">▸ CONFIG</div>
-                <a href="<?= site_url('settings') ?>" class="sidebar-link flex items-center px-3 py-3 rounded text-slate-300"><i class="fas fa-cog w-6 mr-2"></i><span>SETTINGS</span></a>
-                <?php if (isset($user->level) && $user->level == 1) : ?>
-                <div class="px-3 mt-6 mb-2 text-[10px] font-bold text-slate-500 uppercase tracking-widest">▸ ADMIN.SUDO</div>
-                <a href="<?= site_url('admin/manage-users') ?>" class="sidebar-link flex items-center px-3 py-3 rounded text-slate-300"><i class="fas fa-users w-6 mr-2"></i><span>MANAGE_USERS</span></a>
-                <a href="<?= site_url('admin/create-referral') ?>" class="sidebar-link flex items-center px-3 py-3 rounded text-slate-300"><i class="fas fa-user-plus w-6 mr-2"></i><span>CREATE_USER</span></a>
-                <?php endif; ?>
-            </nav>
+<div class="matrix-rain"></div>
+<div class="grid-floor"></div>
+
+<!-- ====== TOP SYSTEM BAR ====== -->
+<header class="sys-bar px-6 py-4 border-b" style="border-color: rgba(0,245,255,.3); background:linear-gradient(180deg, rgba(0,8,16,.9), rgba(0,8,16,.5))">
+  <div class="flex items-center justify-between gap-8">
+    <!-- LOGO -->
+    <div class="flex items-center gap-4">
+      <div class="w-12 h-12 flex items-center justify-center" style="background:linear-gradient(135deg,var(--cy-cyan,#00f5ff),var(--cy-magenta,#ff2bd6));clip-path:polygon(20% 0,80% 0,100% 50%,80% 100%,20% 100%,0 50%);box-shadow:0 0 20px var(--cy-cyan,#00f5ff)">
+        <i class="fas fa-shield-alt text-black text-xl"></i>
+      </div>
+      <div>
+        <div style="font:900 18px 'Orbitron',sans-serif; background:linear-gradient(90deg,#fff,var(--cy-cyan,#00f5ff)); -webkit-background-clip:text; background-clip:text; color:transparent">SX2.LADOR</div>
+        <div style="font:10px 'Share Tech Mono',monospace; color:#7fb3c2; letter-spacing:.2em">// MAINFRAME.NODE.01</div>
+      </div>
+    </div>
+
+    <!-- 4 GAUGES -->
+    <div class="flex items-center gap-7">
+      <?php
+        $g_cpu = rand(35, 78);
+        $g_mem = rand(40, 85);
+        $g_net = rand(15, 95);
+        $g_upt = 99;
+        function gauge_rot($v){ return -90 + ($v / 100) * 180; }
+      ?>
+      <div class="gauge">
+        <div class="ring"></div>
+        <?php for($i=0;$i<11;$i++): ?><div class="tick" style="transform: translateX(-50%) rotate(<?= -90 + $i*18 ?>deg)"></div><?php endfor; ?>
+        <div class="needle" style="transform: rotate(<?= gauge_rot($g_cpu) ?>deg)"></div>
+        <div class="center"></div>
+        <div class="val"><?= $g_cpu ?>%</div>
+        <div class="lbl">CPU</div>
+      </div>
+      <div class="gauge">
+        <div class="ring"></div>
+        <?php for($i=0;$i<11;$i++): ?><div class="tick" style="transform: translateX(-50%) rotate(<?= -90 + $i*18 ?>deg)"></div><?php endfor; ?>
+        <div class="needle" style="transform: rotate(<?= gauge_rot($g_mem) ?>deg); background:linear-gradient(180deg,#fff,var(--cy-magenta,#ff2bd6)); box-shadow:0 0 8px var(--cy-magenta,#ff2bd6)"></div>
+        <div class="center" style="background:var(--cy-magenta,#ff2bd6); box-shadow:0 0 10px var(--cy-magenta,#ff2bd6)"></div>
+        <div class="val"><?= $g_mem ?>%</div>
+        <div class="lbl" style="color:var(--cy-magenta,#ff2bd6)">MEM</div>
+      </div>
+      <div class="gauge">
+        <div class="ring"></div>
+        <?php for($i=0;$i<11;$i++): ?><div class="tick" style="transform: translateX(-50%) rotate(<?= -90 + $i*18 ?>deg)"></div><?php endfor; ?>
+        <div class="needle" style="transform: rotate(<?= gauge_rot($g_net) ?>deg); background:linear-gradient(180deg,#fff,var(--cy-green,#39ff14)); box-shadow:0 0 8px var(--cy-green,#39ff14)"></div>
+        <div class="center" style="background:var(--cy-green,#39ff14); box-shadow:0 0 10px var(--cy-green,#39ff14)"></div>
+        <div class="val"><?= $g_net ?>%</div>
+        <div class="lbl" style="color:var(--cy-green,#39ff14)">NET</div>
+      </div>
+      <div class="gauge">
+        <div class="ring"></div>
+        <?php for($i=0;$i<11;$i++): ?><div class="tick" style="transform: translateX(-50%) rotate(<?= -90 + $i*18 ?>deg)"></div><?php endfor; ?>
+        <div class="needle" style="transform: rotate(<?= gauge_rot($g_upt) ?>deg); background:linear-gradient(180deg,#fff,#ffb800); box-shadow:0 0 8px #ffb800"></div>
+        <div class="center" style="background:#ffb800; box-shadow:0 0 10px #ffb800"></div>
+        <div class="val"><?= $g_upt ?>%</div>
+        <div class="lbl" style="color:#ffb800">UPTIME</div>
+      </div>
+    </div>
+
+    <!-- OPERATOR + LOGOUT -->
+    <div class="flex items-center gap-4">
+      <div class="text-right">
+        <div style="font:10px 'Share Tech Mono',monospace; color:#7fb3c2; letter-spacing:.2em">// OPERATOR</div>
+        <div style="font:700 14px 'Orbitron',sans-serif; color:var(--cy-cyan,#00f5ff); text-shadow: 0 0 8px rgba(0,245,255,.6)"><?= strtoupper(esc($user->username ?? 'GUEST')) ?></div>
+        <div style="font:10px 'Share Tech Mono',monospace; color:#7fb3c2">$<?= number_format($user->saldo ?? 0, 2) ?> CREDIT</div>
+      </div>
+      <a href="<?= site_url('logout') ?>" title="DISCONNECT" style="display:flex;align-items:center;justify-content:center;width:44px;height:44px;border:1px solid var(--cy-magenta,#ff2bd6); color:var(--cy-magenta,#ff2bd6); box-shadow: inset 0 0 12px rgba(255,43,214,.2)">
+        <i class="fas fa-power-off"></i>
+      </a>
+    </div>
+  </div>
+
+  <!-- ====== NAV TABS ====== -->
+  <nav class="nav-tabs mt-5">
+    <a href="<?= site_url('dashboard') ?>" class="on"><i class="fas fa-chart-pie mr-2"></i>DASH</a>
+    <a href="<?= site_url('keys') ?>"><i class="fas fa-key mr-2"></i>KEYS</a>
+    <a href="<?= site_url('keys/generate') ?>"><i class="fas fa-bolt mr-2"></i>FORGE</a>
+    <?php if (isset($user->level) && $user->level == 1) : ?>
+    <a href="<?= site_url('admin/manage-users') ?>"><i class="fas fa-users mr-2"></i>USERS</a>
+    <a href="<?= site_url('admin/create-referral') ?>"><i class="fas fa-user-plus mr-2"></i>SPAWN</a>
+    <?php endif; ?>
+    <a href="<?= site_url('settings') ?>"><i class="fas fa-cog mr-2"></i>SYS</a>
+  </nav>
+</header>
+
+<!-- ====== FLASH ====== -->
+<div class="px-6 mt-4 relative z-10">
+<?php if (session()->getFlashdata('msgDanger')) : ?>
+  <div class="hud" style="border-color:var(--cy-magenta,#ff2bd6); color:var(--cy-magenta,#ff2bd6)">
+    <div class="hud-title">// ALERT.MAGENTA<span class="dot" style="background:var(--cy-magenta,#ff2bd6); box-shadow:0 0 8px var(--cy-magenta,#ff2bd6)"></span></div>
+    <?= session()->getFlashdata('msgDanger') ?>
+  </div>
+<?php endif; ?>
+<?php if (session()->getFlashdata('msgSuccess')) : ?>
+  <div class="hud" style="border-color:var(--cy-green,#39ff14); color:var(--cy-green,#39ff14)">
+    <div class="hud-title">// CONFIRMED<span class="dot"></span></div>
+    <?= session()->getFlashdata('msgSuccess') ?>
+  </div>
+<?php endif; ?>
+</div>
+
+<!-- ====== 3 COLUMN GRID ====== -->
+<main class="px-6 py-5 relative z-10 grid gap-5" style="grid-template-columns: 1fr 1.4fr 1fr">
+
+  <!-- ===== COL 1: LIVE TERMINAL ===== -->
+  <section class="hud">
+    <div class="hud-title">// SYS.CONSOLE<span class="dot"></span></div>
+    <div class="term" id="term"></div>
+  </section>
+
+  <!-- ===== COL 2: HEX MAP + STATS ===== -->
+  <section>
+    <!-- HEX MAP -->
+    <div class="hud" style="border-color: var(--cy-cyan,#00f5ff)">
+      <div class="hud-title">
+        <span>// LICENSE.GRID [<?= str_pad($stats['total_keys'] ?? 0, 4, '0', STR_PAD_LEFT) ?>]</span>
+        <span style="font-size:9px; color:#7fb3c2">
+          <span style="color:var(--cy-green,#39ff14)">● ACTIVE</span>
+          <span style="color:#ffb800; margin-left:8px">● EXPIRING</span>
+          <span style="color:var(--cy-magenta,#ff2bd6); margin-left:8px">● DEAD</span>
+        </span>
+      </div>
+      <?php
+        $total = (int)($stats['total_keys'] ?? 60);
+        $active = (int)($stats['active_keys'] ?? 0);
+        $unused = (int)($stats['unused_keys'] ?? 0);
+        $cells = 60;
+        $on = min($active, $cells);
+        $exp = min(8, max(0, $cells - $on));
+        $dead = max(0, $cells - $on - $exp);
+      ?>
+      <div class="hex-grid">
+        <?php for($i=0;$i<$on;$i++): ?><div class="hex act" title="ACTIVE"></div><?php endfor; ?>
+        <?php for($i=0;$i<$exp;$i++): ?><div class="hex exp" title="EXPIRING"></div><?php endfor; ?>
+        <?php for($i=0;$i<$dead;$i++): ?><div class="hex dead" title="DEAD"></div><?php endfor; ?>
+      </div>
+    </div>
+
+    <!-- QUICK STATS bar -->
+    <div class="hud">
+      <div class="hud-title">// QUICK.READOUT<span class="dot"></span></div>
+      <div class="grid grid-cols-3 gap-3" style="font:'Share Tech Mono',monospace">
+        <div style="border-left:3px solid var(--cy-green,#39ff14); padding-left:10px">
+          <div style="font:10px 'Share Tech Mono',monospace; color:#7fb3c2; letter-spacing:.2em">ACTIVE</div>
+          <div style="font:900 28px 'Orbitron',sans-serif; color:var(--cy-green,#39ff14); text-shadow:0 0 10px var(--cy-green,#39ff14)"><?= str_pad($stats['active_keys'] ?? 0, 3, '0', STR_PAD_LEFT) ?></div>
         </div>
-        <div class="p-4 border-t border-white/10 mt-auto">
-            <div class="flex items-center gap-3 mb-4 px-2">
-                <div class="w-10 h-10 rounded-full bg-gradient-to-br from-slate-700 to-slate-800 flex items-center justify-center text-white font-bold border border-white/15"><?= isset($user->username) ? strtoupper(substr($user->username, 0, 1)) : 'U' ?></div>
-                <div><h4 class="text-white font-semibold"><?= $user->username ?? 'User' ?></h4><div class="flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span><span class="text-xs text-slate-300"><?= $role_label ?? (isset($user->level) ? getLevel($user->level) : 'Member') ?></span></div></div>
-            </div>
-            <a href="<?= site_url('logout') ?>" class="flex items-center justify-center w-full py-2.5 rounded-xl border border-red-500/30 bg-red-500/10 text-red-400 hover:bg-red-500/20 transition-all text-xs gap-2"><i class="fas fa-power-off"></i> LOGOUT</a>
+        <div style="border-left:3px solid var(--cy-cyan,#00f5ff); padding-left:10px">
+          <div style="font:10px 'Share Tech Mono',monospace; color:#7fb3c2; letter-spacing:.2em">STOCK</div>
+          <div style="font:900 28px 'Orbitron',sans-serif; color:var(--cy-cyan,#00f5ff); text-shadow:0 0 10px var(--cy-cyan,#00f5ff)"><?= str_pad($stats['unused_keys'] ?? 0, 3, '0', STR_PAD_LEFT) ?></div>
         </div>
-    </aside>
-
-    <!-- Main Content -->
-    <main class="flex-1 flex flex-col overflow-hidden">
-        <header class="h-20 flex items-center justify-between px-4 md:px-8 border-b border-white/10 bg-slate-900/40 backdrop-blur-md">
-            <div class="flex items-center gap-3">
-                <button onclick="toggleSidebar()" class="md:hidden p-2.5 text-white hover:bg-white/10 rounded-xl"><i class="fas fa-bars text-xl"></i></button>
-                <div class="hidden md:block">
-                    <h2 class="text-2xl font-extrabold bg-gradient-to-r from-white to-slate-300 bg-clip-text text-transparent" data-text="// OVERVIEW" style="font-family:'Orbitron',sans-serif">// OVERVIEW</h2>
-                    <p class="text-slate-400 text-xs" style="font-family:'Share Tech Mono',monospace">&gt; OPERATOR: <span class="text-indigo-400 font-semibold uppercase tracking-widest"><?= $user->username ?? 'User' ?></span> // SESSION ACTIVE</p>
-                </div>
-            </div>
-            <div class="glass-panel px-5 py-2 rounded flex items-center gap-3">
-                <div class="w-9 h-9 rounded bg-amber-500/15 flex items-center justify-center text-amber-400"><i class="fas fa-coins"></i></div>
-                <div>
-                    <p class="text-[9px] text-slate-400 uppercase font-black tracking-widest" style="font-family:'Share Tech Mono',monospace">// CREDIT_BAL</p>
-                    <p class="text-white font-bold" style="font-family:'Share Tech Mono',monospace">$<?= isset($user->saldo) ? number_format($user->saldo, 2) : '0.00' ?></p>
-                </div>
-            </div>
-        </header>
-
-        <div class="flex-1 overflow-y-auto p-4 md:p-8">
-            <!-- Flash Messages -->
-            <?php if (session()->getFlashdata('msgDanger')) : ?>
-                <div class="bg-red-500/10 border border-red-500/20 text-red-300 px-5 py-3.5 rounded-xl mb-6 text-sm flex items-center gap-3 animate-fade-in"><i class="fas fa-exclamation-triangle"></i><?= session()->getFlashdata('msgDanger') ?></div>
-            <?php endif; ?>
-            <?php if (session()->getFlashdata('msgSuccess')) : ?>
-                <div class="bg-emerald-500/10 border border-emerald-500/20 text-emerald-300 px-5 py-3.5 rounded-xl mb-6 text-sm flex items-center gap-3 animate-fade-in"><i class="fas fa-check-circle"></i><?= session()->getFlashdata('msgSuccess') ?></div>
-            <?php endif; ?>
-
-            <!-- HUD Stats Grid -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                <div class="glass-panel p-6 rounded stat-card">
-                    <p class="text-xs text-slate-400 uppercase font-bold tracking-widest" style="font-family:'Share Tech Mono',monospace">// LIC_TOTAL</p>
-                    <h3 class="text-4xl font-bold text-white my-4" style="font-family:'Share Tech Mono',monospace"><?= str_pad($stats['total_keys'] ?? 0, 4, '0', STR_PAD_LEFT) ?></h3>
-                    <div class="text-xs text-slate-400" style="font-family:'Share Tech Mono',monospace"><i class="fas fa-database mr-2"></i>&gt; ALL TIME</div>
-                </div>
-                <div class="glass-panel p-6 rounded stat-card">
-                    <p class="text-xs text-slate-400 uppercase font-bold tracking-widest" style="font-family:'Share Tech Mono',monospace">// LIC_ACTIVE</p>
-                    <h3 class="text-4xl font-bold text-white my-4" style="font-family:'Share Tech Mono',monospace"><?= str_pad($stats['active_keys'] ?? 0, 4, '0', STR_PAD_LEFT) ?></h3>
-                    <div class="text-xs text-emerald-400" style="font-family:'Share Tech Mono',monospace"><i class="fas fa-check-circle mr-2"></i>&gt; RUNNING</div>
-                </div>
-                <div class="glass-panel p-6 rounded stat-card">
-                    <p class="text-xs text-slate-400 uppercase font-bold tracking-widest" style="font-family:'Share Tech Mono',monospace">// STOCK_READY</p>
-                    <h3 class="text-4xl font-bold text-white my-4" style="font-family:'Share Tech Mono',monospace"><?= str_pad($stats['unused_keys'] ?? 0, 4, '0', STR_PAD_LEFT) ?></h3>
-                    <div class="text-xs text-blue-400" style="font-family:'Share Tech Mono',monospace"><i class="fas fa-archive mr-2"></i>&gt; AVAILABLE</div>
-                </div>
-                <div class="p-6 rounded cursor-pointer hover:shadow-xl transition glass-panel" onclick="window.location.href='<?= site_url('keys/generate') ?>'" style="background:linear-gradient(135deg,rgba(0,245,255,.15),rgba(255,43,214,.15))">
-                    <div class="flex flex-col">
-                        <div class="w-10 h-10 rounded flex items-center justify-center mb-3" style="background:rgba(0,245,255,.2);border:1px solid rgba(0,245,255,.5)"><i class="fas fa-bolt text-white"></i></div>
-                        <h3 class="text-xl font-bold text-white" style="font-family:'Orbitron',sans-serif">⚡ GENERATE</h3>
-                        <p class="text-indigo-100 text-xs" style="font-family:'Share Tech Mono',monospace">&gt; FORGE NEW KEYS</p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <div class="lg:col-span-2 space-y-6">
-                    <!-- Top Performance with working 3-dot menu for Resellers - FIXED: Proper foreach with id check -->
-                    <div class="glass-panel rounded-2xl p-6">
-                        <div class="flex items-center justify-between mb-6"><div class="flex items-center gap-3"><i class="fas fa-crown text-amber-400"></i><h3 class="font-bold text-white">Top Performance / Resellers</h3></div></div>
-                        <div class="space-y-4">
-                            <?php if (!empty($resellers) && is_array($resellers)) : ?>
-                                <?php foreach ($resellers as $idx => $res) : ?>
-                                    <?php if (!isset($res->id)) continue; // Skip if no ID ?>
-                                    <div class="flex items-center justify-between p-4 rounded-xl bg-slate-800/30 border border-white/10 hover:bg-slate-800/50 transition-all group relative" id="reseller-row-<?= $res->id ?>">
-                                        <div class="flex items-center gap-4">
-                                            <div class="w-12 h-12 rounded-full bg-gradient-to-br from-slate-700 to-slate-800 flex items-center justify-center text-white font-bold text-lg border border-slate-600">
-                                                <?= isset($res->username) ? strtoupper(substr($res->username, 0, 1)) : 'U' ?>
-                                            </div>
-                                            <div>
-                                                <div class="flex items-center gap-2 flex-wrap">
-                                                    <h4 class="text-white font-bold"><?= $res->username ?? 'Unknown' ?></h4>
-                                                    <?php if (isset($res->level) && $res->level == 1): ?>
-                                                        <span class="px-1.5 py-0.5 rounded bg-blue-500/20 text-[9px] text-blue-400 font-bold"><i class="fas fa-check-circle"></i> OWNER</span>
-                                                    <?php endif; ?>
-                                                </div>
-                                                <span class="text-[10px] text-slate-400 uppercase font-black bg-slate-700/50 px-2 py-0.5 rounded mt-1 inline-block">
-                                                    <?php 
-                                                        $levelName = 'Reseller';
-                                                        if (isset($res->level)) {
-                                                            if ($res->level == 1) $levelName = 'Owner';
-                                                            elseif ($res->level == 2) $levelName = 'Admin';
-                                                            else $levelName = 'Reseller';
-                                                        }
-                                                        echo $levelName;
-                                                    ?>
-                                                </span>
-                                            </div>
-                                        </div>
-                                        <div class="flex items-center gap-4">
-                                            <div class="text-right">
-                                                <p class="text-xl font-black text-white"><?= $res->managed_keys ?? 0 ?></p>
-                                                <p class="text-[10px] text-slate-500 uppercase font-bold">Keys</p>
-                                            </div>
-                                            <!-- 3-Dot Button with Dropdown -->
-                                            <div class="relative">
-                                                <button class="dropdown-btn w-8 h-8 rounded-lg bg-slate-700/50 hover:bg-indigo-500/30 flex items-center justify-center transition-all" data-dropdown-id="dropdown-<?= $res->id ?>">
-                                                    <i class="fas fa-ellipsis-v text-slate-300 text-sm"></i>
-                                                </button>
-                                                <div id="dropdown-<?= $res->id ?>" class="reseller-dropdown hidden">
-                                                    <a href="<?= site_url('admin/edit-user/'.$res->id) ?>"><i class="fas fa-edit text-blue-400"></i> Edit Profile</a>
-                                                    <a href="<?= site_url('admin/reset-password/'.$res->id) ?>"><i class="fas fa-key text-amber-400"></i> Reset Password</a>
-                                                    <a href="<?= site_url('admin/manage-keys/'.$res->id) ?>"><i class="fas fa-key text-indigo-400"></i> View Keys</a>
-                                                    <button onclick="confirmDelete(<?= $res->id ?>)" class="text-red-400 w-full"><i class="fas fa-trash-alt"></i> Delete User</button>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                <?php endforeach; ?>
-                            <?php else : ?>
-                                <div class="text-center py-8 text-slate-400">No resellers found.</div>
-                            <?php endif; ?>
-                        </div>
-                    </div>
-
-                    <!-- Recent Activity Table -->
-                    <div class="glass-panel rounded-2xl p-6">
-                        <div class="flex items-center gap-3 mb-6"><i class="fas fa-history text-indigo-400"></i><h3 class="font-bold text-white">Recent Activity</h3></div>
-                        <div class="overflow-x-auto">
-                            <table class="w-full text-left">
-                                <thead>
-                                    <tr class="text-xs text-slate-400 border-b border-white/10">
-                                        <th class="py-3 px-2">Action</th>
-                                        <th class="py-3 px-2">Key</th>
-                                        <th class="py-3 px-2 text-right">Time</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                <?php if (!empty($history) && is_array($history)): ?>
-                                    <?php foreach ($history as $idx => $h) : 
-                                        $in = isset($h->info) ? explode("|", $h->info) : ['Unknown', '---'];
-                                        $action = $in[0] ?? 'Unknown';
-                                        $key = $in[1] ?? '---';
-                                    ?>
-                                        <tr class="border-b border-white/10 hover:bg-white/5 transition-colors <?= ($idx === count($history)-1) ? 'border-b-0' : '' ?>">
-                                            <td class="py-3 px-2 text-white text-xs"><?= $action ?></td>
-                                            <td class="py-3 px-2 font-mono text-indigo-400 text-[10px]"><?= $key ?></td>
-                                            <td class="py-3 px-2 text-right text-slate-500 text-[10px]">
-                                                <?php 
-                                                    if (isset($h->created_at) && class_exists('CodeIgniter\I18n\Time')) {
-                                                        echo \CodeIgniter\I18n\Time::parse($h->created_at)->humanize();
-                                                    } else {
-                                                        echo $h->created_at ?? 'Just now';
-                                                    }
-                                                ?>
-                                            </td>
-                                        </tr>
-                                    <?php endforeach; ?>
-                                <?php else: ?>
-                                    <tr><td colspan="3" class="py-8 text-center text-slate-500">No recent activity</td></tr>
-                                <?php endif; ?>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Right Sidebar: Quick Access & Account -->
-                <div class="space-y-6">
-                    <div class="glass-panel rounded-2xl p-6">
-                        <div class="flex items-center gap-3 mb-6"><i class="fas fa-rocket text-indigo-400"></i><h3 class="font-bold uppercase text-xs">Quick Access</h3></div>
-                        <div class="grid grid-cols-2 gap-4">
-                            <a href="<?= site_url('keys/generate') ?>" class="p-5 rounded-2xl bg-slate-800/30 border border-white/10 hover:bg-indigo-500/10 text-center group transition-all"><i class="fas fa-plus text-indigo-400 text-xl mb-2 block group-hover:scale-110 transition"></i><span class="text-[10px] font-black uppercase">Generate</span></a>
-                            <a href="<?= site_url('keys') ?>" class="p-5 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 hover:bg-indigo-500/20 text-center transition-all"><i class="fas fa-key text-indigo-400 text-xl mb-2 block"></i><span class="text-[10px] font-black uppercase">Licenses</span></a>
-                        </div>
-                        <div class="mt-4"><a href="<?= site_url('settings') ?>" class="flex items-center justify-center gap-3 p-4 rounded-2xl bg-slate-800/30 border border-white/10 hover:bg-slate-700/50 transition-all"><i class="fas fa-cog text-slate-400"></i><span class="text-[10px] font-black uppercase">Settings</span></a></div>
-                    </div>
-                    <div class="glass-panel rounded-2xl p-6">
-                        <div class="flex items-center gap-3 mb-6"><i class="fas fa-user-shield text-indigo-400"></i><h3 class="font-bold uppercase text-xs">Account Info</h3></div>
-                        <div class="space-y-4">
-                            <div class="flex justify-between"><span class="text-xs text-slate-400">Username</span><span class="text-sm text-white font-bold"><?= $user->username ?? 'User' ?></span></div>
-                            <div class="flex justify-between"><span class="text-xs text-slate-400">Role</span><span class="px-2 py-1 rounded bg-indigo-500/20 text-[10px] font-black uppercase"><?= $role_label ?? (isset($user->level) ? getLevel($user->level) : 'Member') ?></span></div>
-                            <div class="flex justify-between"><span class="text-xs text-slate-400">Expiration</span><span class="text-xs text-slate-300 font-mono"><?= isset($user->expiration_date) ? date("d M Y", strtotime($user->expiration_date)) : 'Unlimited' ?></span></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+        <div style="border-left:3px solid var(--cy-magenta,#ff2bd6); padding-left:10px">
+          <div style="font:10px 'Share Tech Mono',monospace; color:#7fb3c2; letter-spacing:.2em">TOTAL</div>
+          <div style="font:900 28px 'Orbitron',sans-serif; color:var(--cy-magenta,#ff2bd6); text-shadow:0 0 10px var(--cy-magenta,#ff2bd6)"><?= str_pad($stats['total_keys'] ?? 0, 3, '0', STR_PAD_LEFT) ?></div>
         </div>
-    </main>
+      </div>
+    </div>
 
-    <!-- JavaScript: Sidebar + Working 3-dot dropdown menus -->
-    <script>
-        // Toggle sidebar mobile
-        function toggleSidebar() {
-            const sidebar = document.getElementById('sidebar');
-            const overlay = document.getElementById('sidebarOverlay');
-            if (sidebar.classList.contains('-translate-x-full')) {
-                sidebar.classList.remove('-translate-x-full');
-                if(overlay) overlay.classList.remove('hidden');
-                document.body.style.overflow = 'hidden';
-            } else {
-                sidebar.classList.add('-translate-x-full');
-                if(overlay) overlay.classList.add('hidden');
-                document.body.style.overflow = '';
-            }
-        }
-        
-        // Close sidebar on resize
-        window.addEventListener('resize', function() {
-            if (window.innerWidth >= 768) {
-                const sidebar = document.getElementById('sidebar');
-                const overlay = document.getElementById('sidebarOverlay');
-                if(sidebar && overlay) {
-                    sidebar.classList.remove('-translate-x-full');
-                    overlay.classList.add('hidden');
-                    document.body.style.overflow = '';
-                }
-            }
-        });
-        
-        // Handle all 3-dot dropdown buttons - FIXED: proper event handling
-        document.addEventListener('click', function(event) {
-            const allDropdowns = document.querySelectorAll('.reseller-dropdown');
-            const dropdownButton = event.target.closest('.dropdown-btn');
-            
-            if (!dropdownButton) {
-                // Close all dropdowns if click outside
-                allDropdowns.forEach(drop => {
-                    drop.classList.add('hidden');
-                });
-                return;
-            }
-            
-            // If button clicked, toggle its dropdown
-            event.stopPropagation();
-            const dropdownId = dropdownButton.getAttribute('data-dropdown-id');
-            const targetDropdown = document.getElementById(dropdownId);
-            
-            if (targetDropdown) {
-                // Close all other dropdowns first
-                allDropdowns.forEach(drop => {
-                    if (drop.id !== dropdownId) drop.classList.add('hidden');
-                });
-                // Toggle current
-                targetDropdown.classList.toggle('hidden');
-            }
-        });
-        
-        // Prevent dropdown menu clicks from closing immediately
-        document.querySelectorAll('.reseller-dropdown').forEach(drop => {
-            drop.addEventListener('click', function(e) {
-                e.stopPropagation();
-            });
-        });
-        
-        // Delete confirmation function
-        function confirmDelete(userId) {
-            if (confirm('⚠️ Are you sure you want to DELETE this user? This action is permanent and cannot be undone.')) {
-                window.location.href = '<?= site_url('admin/delete-user/') ?>' + userId;
-            }
-        }
-        
-        console.log("SX2 LADOR Dashboard - Fully loaded with working 3-dot menus");
-    </script>
+    <!-- FORGE BUTTON -->
+    <a href="<?= site_url('keys/generate') ?>" class="hud" style="display:block; text-align:center; padding:24px; text-decoration:none; background: linear-gradient(135deg, rgba(0,245,255,.15), rgba(255,43,214,.15)); cursor:pointer">
+      <div style="font:11px 'Share Tech Mono',monospace; color:#7fb3c2; letter-spacing:.3em; margin-bottom:6px">▸ QUICK ACCESS ◂</div>
+      <div style="font:900 24px 'Orbitron',sans-serif; background:linear-gradient(90deg,var(--cy-cyan,#00f5ff),var(--cy-magenta,#ff2bd6)); -webkit-background-clip:text; background-clip:text; color:transparent">
+        ⚡ FORGE NEW KEYS
+      </div>
+      <div style="font:10px 'Share Tech Mono',monospace; color:#7fb3c2; margin-top:4px">&gt; Press to initialize key generator subroutine</div>
+    </a>
+  </section>
+
+  <!-- ===== COL 3: RADAR + INFO ===== -->
+  <section>
+    <!-- RADAR profile -->
+    <div class="hud">
+      <div class="hud-title">// OPERATOR.PROFILE<span class="dot"></span></div>
+      <div class="radar mb-3">
+        <div class="ring"></div><div class="ring"></div><div class="ring"></div><div class="ring"></div>
+        <div class="sweep"></div>
+        <div class="blip" style="left:30%; top:25%"></div>
+        <div class="blip" style="left:70%; top:60%"></div>
+        <div class="blip" style="left:40%; top:78%"></div>
+        <div class="core"><?= strtoupper(substr($user->username ?? 'X', 0, 1)) ?></div>
+      </div>
+      <div style="text-align:center">
+        <div style="font:700 18px 'Orbitron',sans-serif; color:var(--cy-cyan,#00f5ff); text-shadow:0 0 8px rgba(0,245,255,.5)"><?= strtoupper(esc($user->username ?? 'GUEST')) ?></div>
+        <div style="font:10px 'Share Tech Mono',monospace; color:#7fb3c2; letter-spacing:.2em">LVL <?= $user->level ?? 0 ?> // <?= ($user->level ?? 0) == 1 ? 'ROOT' : (($user->level ?? 0) == 3 ? 'RESELLER' : 'USER') ?></div>
+      </div>
+    </div>
+
+    <!-- CREDITS -->
+    <div class="hud" style="border-color:#ffb800">
+      <div class="hud-title" style="color:#ffb800">// CREDIT.VAULT<span class="dot" style="background:#ffb800; box-shadow:0 0 8px #ffb800"></span></div>
+      <div style="text-align:center; padding:10px 0">
+        <div style="font:900 36px 'Share Tech Mono',monospace; color:#ffb800; text-shadow:0 0 12px rgba(255,184,0,.6)">$<?= number_format($user->saldo ?? 0, 2) ?></div>
+        <div style="font:10px 'Share Tech Mono',monospace; color:#7fb3c2; letter-spacing:.2em; margin-top:4px">AVAILABLE BALANCE</div>
+      </div>
+      <div style="display:flex; gap:6px; margin-top:8px; font:10px 'Share Tech Mono',monospace">
+        <div style="flex:1; padding:6px; text-align:center; border:1px solid rgba(0,245,255,.3); color:var(--cy-cyan,#00f5ff)">EXP: <?= esc($user->exp_date ?? '∞') ?></div>
+      </div>
+    </div>
+
+    <!-- SYSTEM INFO -->
+    <div class="hud">
+      <div class="hud-title">// SESSION.INFO<span class="dot"></span></div>
+      <div style="font:11px 'Share Tech Mono',monospace; color:#cfe7ee; line-height:1.9">
+        <div>&gt; IP_ADDR: <span style="color:var(--cy-cyan,#00f5ff)"><?= $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0' ?></span></div>
+        <div>&gt; SESSION: <span style="color:var(--cy-green,#39ff14)">ENCRYPTED</span></div>
+        <div>&gt; CIPHER: <span style="color:var(--cy-cyan,#00f5ff)">AES-256/RC4</span></div>
+        <div>&gt; UPLINK: <span style="color:var(--cy-green,#39ff14)">STABLE 99.97%</span></div>
+        <div>&gt; PROTOCOL: <span style="color:#ffb800">XXTEA+RSA</span></div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<!-- ====== TICKER ====== -->
+<div class="ticker">
+  <div class="label">// LIVE.FEED</div>
+  <div class="track"><span>
+    <i class="fas fa-broadcast-tower" style="color:var(--cy-green,#39ff14)"></i> SYS UP
+    <span class="sep">▸</span>
+    LIC_ACTIVE: <?= $stats['active_keys'] ?? 0 ?>
+    <span class="sep">▸</span>
+    STOCK: <?= $stats['unused_keys'] ?? 0 ?>
+    <span class="sep">▸</span>
+    CREDITS: $<?= number_format($user->saldo ?? 0, 2) ?>
+    <span class="sep">▸</span>
+    NODE_01 ONLINE
+    <span class="sep">▸</span>
+    NODE_02 ONLINE
+    <span class="sep">▸</span>
+    NODE_03 ONLINE
+    <span class="sep">▸</span>
+    QUANTUM_SHIELD <span style="color:var(--cy-green,#39ff14)">ACTIVE</span>
+    <span class="sep">▸</span>
+    LAST_KEY: HC-<?= strtoupper(substr(md5(rand()), 0, 4)) ?>-<?= strtoupper(substr(md5(rand()), 0, 4)) ?>
+    <span class="sep">▸</span>
+    UPTIME 99.97%
+    <span class="sep">▸</span>
+    THREATS_BLOCKED: <?= rand(1200, 9999) ?>
+    <span class="sep">▸</span>
+    NEURAL_NET <span style="color:var(--cy-cyan,#00f5ff)">SYNCED</span>
+    <span class="sep">▸</span>
+    <!-- LẶP để mượt -->
+    SYS UP
+    <span class="sep">▸</span>
+    LIC_ACTIVE: <?= $stats['active_keys'] ?? 0 ?>
+    <span class="sep">▸</span>
+    STOCK: <?= $stats['unused_keys'] ?? 0 ?>
+    <span class="sep">▸</span>
+    CREDITS: $<?= number_format($user->saldo ?? 0, 2) ?>
+    <span class="sep">▸</span>
+    NODE_01 ONLINE
+  </span></div>
+</div>
+
+<!-- ====== JS: terminal log feed ====== -->
+<script>
+(function(){
+  var term = document.getElementById('term');
+  var pool = [
+    {c:'gn', t:'[OK] vault.unlock... license_id=<?= $user->id_users ?? 'X' ?>'},
+    {c:'cy', t:'[INFO] uplink=mainframe.01 latency=12ms'},
+    {c:'dm', t:'[..] scanning license pool ... <?= $stats['total_keys'] ?? 0 ?> entries'},
+    {c:'gn', t:'[OK] <?= $stats['active_keys'] ?? 0 ?> licenses active // verified'},
+    {c:'cy', t:'[INFO] credit.balance = $<?= number_format($user->saldo ?? 0, 2) ?>'},
+    {c:'am', t:'[WARN] 2 licenses expiring in <72h'},
+    {c:'dm', t:'[..] sync user.<?= esc($user->username ?? "x") ?> profile'},
+    {c:'gn', t:'[OK] cipher.handshake AES-256/RC4'},
+    {c:'mg', t:'[ALERT] firewall blocked 47 packets from 91.x.x.x'},
+    {c:'dm', t:'[..] node.heartbeat // 0001 0002 0003 OK'},
+    {c:'cy', t:'[INFO] cache.refresh complete // 234 keys cached'},
+    {c:'gn', t:'[OK] auth.session token rotated'},
+    {c:'dm', t:'[..] db.replication // 99.99% in-sync'},
+    {c:'cy', t:'[INFO] avg.query_time = 4.2ms'},
+    {c:'gn', t:'[OK] backup.snapshot saved // 14:32:01'},
+    {c:'mg', t:'[ALERT] anomaly detected // node 02 :: false alarm'},
+    {c:'dm', t:'[..] heartbeat: 60s tick'},
+    {c:'gn', t:'[OK] all systems nominal'},
+  ];
+  var i = 0;
+  function add(){
+    if(term.childElementCount > 24) term.removeChild(term.firstElementChild);
+    var p = pool[Math.floor(Math.random()*pool.length)];
+    var d = new Date();
+    var ts = String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0')+':'+String(d.getSeconds()).padStart(2,'0');
+    var el = document.createElement('div');
+    el.className = 'ln ' + p.c;
+    el.textContent = ts + ' ' + p.t;
+    term.appendChild(el);
+  }
+  // initial fill
+  for(var k=0;k<14;k++) add();
+  setInterval(add, 1800);
+})();
+</script>
+
 </body>
 </html>
