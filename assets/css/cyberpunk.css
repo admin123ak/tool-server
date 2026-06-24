@@ -1,0 +1,290 @@
+/* ============================================================================
+   CYBERPUNK NEON CIRCUIT — Skin độc đáo cho panel
+   Chèn SAU mọi CSS khác (Tailwind/Bootstrap) trong <head>:
+     <link rel="stylesheet" href="<?= base_url('assets/css/cyberpunk.css') ?>">
+   ============================================================================ */
+
+/* ---- Tokens ---- */
+:root{
+  --cy-bg:        #05060a;
+  --cy-bg2:       #0a0d18;
+  --cy-cyan:      #00f5ff;
+  --cy-magenta:   #ff2bd6;
+  --cy-green:     #39ff14;
+  --cy-amber:     #ffb800;
+  --cy-grid:      rgba(0,245,255,.06);
+  --cy-line:      rgba(0,245,255,.22);
+  --cy-line2:     rgba(255,43,214,.22);
+  --cy-glow:      0 0 12px var(--cy-cyan), 0 0 24px rgba(0,245,255,.4);
+  --cy-glow-m:    0 0 12px var(--cy-magenta), 0 0 24px rgba(255,43,214,.4);
+  --cy-fmono:     'Share Tech Mono','JetBrains Mono','Consolas',monospace;
+  --cy-fhead:     'Orbitron','Rajdhani','Segoe UI',sans-serif;
+}
+
+/* ---- Web font (gọn, free từ Google) ---- */
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Share+Tech+Mono&family=Rajdhani:wght@500;600;700&display=swap');
+
+/* ============================================================
+   BACKGROUND: đen + lưới circuit + vignette
+   ============================================================ */
+html,body{ background: var(--cy-bg) !important; color:#cfe7ee !important; font-family: var(--cy-fhead) !important; }
+body{
+  background:
+    radial-gradient(1200px 800px at 80% -10%, rgba(255,43,214,.10), transparent 60%),
+    radial-gradient(900px 700px at -10% 110%, rgba(0,245,255,.10), transparent 55%),
+    linear-gradient(var(--cy-grid) 1px, transparent 1px) 0 0/44px 44px,
+    linear-gradient(90deg, var(--cy-grid) 1px, transparent 1px) 0 0/44px 44px,
+    var(--cy-bg) !important;
+  position: relative;
+}
+/* scanline phủ toàn màn */
+body::after{
+  content:""; position:fixed; inset:0; pointer-events:none; z-index:9999;
+  background: repeating-linear-gradient( to bottom,
+    rgba(0,245,255,0) 0, rgba(0,245,255,0) 2px,
+    rgba(0,245,255,.025) 3px, rgba(0,245,255,0) 4px);
+  mix-blend-mode: screen;
+}
+
+/* ============================================================
+   GLASS PANEL → HUD PANEL với corner brackets
+   ============================================================ */
+.glass-panel, .glass-card, .stat-card,
+.card, .modal-content{
+  background: linear-gradient(160deg, rgba(8,12,20,.85), rgba(5,6,10,.92)) !important;
+  border: 1px solid var(--cy-line) !important;
+  border-radius: 6px !important;
+  position: relative;
+  box-shadow:
+    inset 0 0 0 1px rgba(0,245,255,.04),
+    inset 0 -1px 0 rgba(0,245,255,.15),
+    0 0 18px rgba(0,245,255,.06),
+    0 4px 30px rgba(0,0,0,.6) !important;
+  backdrop-filter: blur(6px);
+  overflow: hidden;
+}
+/* lưới mờ nội bộ panel */
+.glass-panel::before, .glass-card::before, .stat-card::before, .card::before{
+  content:""; position:absolute; inset:0; pointer-events:none; opacity:.55;
+  background:
+    linear-gradient(var(--cy-grid) 1px, transparent 1px) 0 0/22px 22px,
+    linear-gradient(90deg, var(--cy-grid) 1px, transparent 1px) 0 0/22px 22px;
+  mask: linear-gradient(180deg, rgba(0,0,0,.6), transparent 60%);
+}
+/* 4 góc bracket sci-fi (sau panel) — dùng box-shadow trên :after để vẽ */
+.glass-panel::after, .glass-card::after, .stat-card::after, .card::after{
+  content:""; position:absolute; inset:6px; pointer-events:none;
+  border:1px solid transparent;
+  background:
+    linear-gradient(var(--cy-cyan),var(--cy-cyan)) left top/14px 1px no-repeat,
+    linear-gradient(var(--cy-cyan),var(--cy-cyan)) left top/1px 14px no-repeat,
+    linear-gradient(var(--cy-cyan),var(--cy-cyan)) right top/14px 1px no-repeat,
+    linear-gradient(var(--cy-cyan),var(--cy-cyan)) right top/1px 14px no-repeat,
+    linear-gradient(var(--cy-magenta),var(--cy-magenta)) left bottom/14px 1px no-repeat,
+    linear-gradient(var(--cy-magenta),var(--cy-magenta)) left bottom/1px 14px no-repeat,
+    linear-gradient(var(--cy-magenta),var(--cy-magenta)) right bottom/14px 1px no-repeat,
+    linear-gradient(var(--cy-magenta),var(--cy-magenta)) right bottom/1px 14px no-repeat;
+  filter: drop-shadow(0 0 6px var(--cy-cyan));
+}
+.glass-panel:hover{ border-color: var(--cy-cyan) !important; box-shadow: var(--cy-glow), 0 4px 30px rgba(0,0,0,.6) !important; transition:.25s; }
+
+/* ============================================================
+   TEXT: tiêu đề neon + body chữ rõ
+   ============================================================ */
+h1,h2,h3,h4,h5,.text-2xl,.text-3xl,.text-4xl,.text-5xl,.text-6xl,.text-7xl,.text-8xl{
+  font-family: var(--cy-fhead) !important;
+  letter-spacing:.02em;
+}
+h1,h2{
+  background: linear-gradient(90deg,#fff,var(--cy-cyan) 50%,var(--cy-magenta)) !important;
+  -webkit-background-clip: text !important; background-clip:text !important;
+  color: transparent !important;
+  text-shadow: 0 0 18px rgba(0,245,255,.35);
+}
+/* override Tailwind text-gradient cũ (indigo/purple) */
+.bg-gradient-to-r, .bg-gradient-to-br, .bg-gradient-to-l, .bg-gradient-to-tr{
+  background-image: linear-gradient(90deg,var(--cy-cyan),var(--cy-magenta)) !important;
+}
+.text-transparent.bg-clip-text{
+  color: transparent !important;
+  text-shadow: 0 0 12px rgba(0,245,255,.4);
+}
+.text-white{ color:#e7faff !important; }
+.text-slate-300,.text-slate-400,.text-slate-500{ color:#7fb3c2 !important; }
+.text-indigo-400,.text-indigo-300,.text-purple-400,.text-purple-300{ color: var(--cy-cyan) !important; }
+.text-emerald-400,.text-emerald-300,.text-green-400,.text-green-500{ color: var(--cy-green) !important; }
+.text-amber-400,.text-yellow-400,.text-amber-500{ color: var(--cy-amber) !important; }
+.text-red-400,.text-red-500,.text-pink-400,.text-rose-400{ color: var(--cy-magenta) !important; }
+
+/* số liệu stat → mono neon */
+.stat-card h3, .stat-card .text-3xl, .stat-card [class*="text-4xl"]{
+  font-family: var(--cy-fmono) !important;
+  color: var(--cy-cyan) !important;
+  text-shadow: var(--cy-glow);
+}
+
+/* ============================================================
+   BUTTONS: neon plate + glitch hover
+   ============================================================ */
+button, .btn, a.btn, input[type=submit], [class*="bg-indigo-"], [class*="bg-purple-"], [class*="from-indigo"],[class*="from-purple"]{
+  position:relative;
+  background: linear-gradient(135deg, rgba(0,245,255,.10), rgba(255,43,214,.10)) !important;
+  border:1px solid var(--cy-cyan) !important;
+  color: var(--cy-cyan) !important;
+  text-transform: uppercase; letter-spacing:.08em; font-family: var(--cy-fhead) !important; font-weight:700 !important;
+  border-radius: 4px !important;
+  box-shadow: inset 0 0 12px rgba(0,245,255,.18), 0 0 14px rgba(0,245,255,.12);
+  transition: all .18s ease;
+}
+button:hover, .btn:hover, a.btn:hover{
+  color:#04121a !important;
+  background: var(--cy-cyan) !important;
+  box-shadow: var(--cy-glow), inset 0 0 22px rgba(255,255,255,.4);
+  text-shadow: 0 0 6px #fff;
+  animation: cy-glitch .35s linear 1;
+}
+@keyframes cy-glitch{
+  0%{ transform:translate(0,0) }
+  20%{ transform:translate(-1px,1px) } 40%{ transform:translate(1px,-1px) }
+  60%{ transform:translate(-1px,-1px) } 80%{ transform:translate(1px,1px) }
+  100%{ transform:translate(0,0) }
+}
+/* button đỏ/nguy hiểm → magenta */
+.btn-danger,[class*="bg-red-"],[class*="bg-rose-"]{
+  border-color: var(--cy-magenta) !important;
+  color: var(--cy-magenta) !important;
+  box-shadow: inset 0 0 12px rgba(255,43,214,.18), 0 0 14px rgba(255,43,214,.18) !important;
+}
+.btn-danger:hover,[class*="bg-red-"]:hover{
+  background: var(--cy-magenta) !important; color:#1a0414 !important;
+  box-shadow: var(--cy-glow-m), inset 0 0 22px rgba(255,255,255,.4) !important;
+}
+/* button thành công → green neon */
+.btn-success,[class*="bg-emerald-"],[class*="bg-green-"]{
+  border-color: var(--cy-green) !important;
+  color: var(--cy-green) !important;
+  box-shadow: inset 0 0 12px rgba(57,255,20,.2), 0 0 14px rgba(57,255,20,.16) !important;
+}
+
+/* ============================================================
+   INPUTS / FORMS
+   ============================================================ */
+input, textarea, select, .form-control{
+  background: rgba(5,8,14,.85) !important;
+  border:1px solid var(--cy-line) !important;
+  color:#e7faff !important;
+  border-radius:4px !important;
+  font-family: var(--cy-fmono) !important;
+  letter-spacing:.04em;
+  box-shadow: inset 0 0 10px rgba(0,245,255,.06) !important;
+}
+input:focus, textarea:focus, select:focus, .form-control:focus{
+  outline:none !important;
+  border-color: var(--cy-cyan) !important;
+  box-shadow: 0 0 0 1px var(--cy-cyan), 0 0 16px rgba(0,245,255,.4) !important;
+  background: rgba(0,245,255,.04) !important;
+}
+input::placeholder{ color: rgba(127,179,194,.55) !important; }
+
+/* ============================================================
+   NAV / SIDEBAR / HEADER
+   ============================================================ */
+nav, header, .navbar{
+  background: linear-gradient(180deg, rgba(5,8,14,.92), rgba(5,8,14,.6)) !important;
+  border-bottom:1px solid var(--cy-line) !important;
+  box-shadow: 0 1px 0 rgba(0,245,255,.15), 0 0 24px rgba(0,245,255,.06);
+  backdrop-filter: blur(8px);
+}
+.border-white\/10, .border-white\/5, .border-white\/15, .border-white\/20{ border-color: var(--cy-line) !important; }
+.bg-slate-900\/40,.bg-slate-800\/50,.bg-slate-900,.bg-slate-800{
+  background: rgba(8,12,20,.7) !important;
+}
+/* link sidebar active */
+a.active, a[href].active, nav a:hover, .nav-link:hover{
+  color: var(--cy-cyan) !important;
+  text-shadow: 0 0 8px rgba(0,245,255,.7);
+}
+
+/* Logo block (Tailwind class hay dùng) — đổi sang cyan/magenta */
+.bg-gradient-to-br.from-indigo-500.to-purple-600,
+[class*="from-indigo-"][class*="to-purple-"]{
+  background: linear-gradient(135deg, var(--cy-cyan), var(--cy-magenta)) !important;
+  box-shadow: 0 0 14px rgba(0,245,255,.5);
+  border-radius:6px !important;
+}
+
+/* ============================================================
+   TABLE (Keys list, History...)
+   ============================================================ */
+table{ border-collapse: separate !important; border-spacing:0; width:100%; }
+table th{
+  background: rgba(0,245,255,.06) !important;
+  color: var(--cy-cyan) !important;
+  font-family: var(--cy-fhead) !important;
+  text-transform: uppercase; letter-spacing:.08em;
+  border-bottom:1px solid var(--cy-cyan) !important;
+  padding:.75rem 1rem;
+}
+table td{
+  border-bottom:1px solid rgba(0,245,255,.08) !important;
+  padding:.75rem 1rem;
+  font-family: var(--cy-fmono) !important;
+}
+table tr:hover td{ background: rgba(0,245,255,.05) !important; }
+
+/* ============================================================
+   ALERTS / BADGES
+   ============================================================ */
+[class*="bg-red-500/10"],   [class*="bg-rose-"]\/10  { background: rgba(255,43,214,.10) !important; border-color: var(--cy-magenta) !important; color: var(--cy-magenta) !important; }
+[class*="bg-emerald-500/10"], [class*="bg-green-"]\/10 { background: rgba(57,255,20,.10) !important; border-color: var(--cy-green) !important; color: var(--cy-green) !important; }
+[class*="bg-amber-500/10"], [class*="bg-yellow-"]\/10 { background: rgba(255,184,0,.10) !important; border-color: var(--cy-amber) !important; color: var(--cy-amber) !important; }
+.badge{
+  font-family: var(--cy-fmono) !important; letter-spacing:.06em; text-transform: uppercase;
+  border:1px solid var(--cy-cyan); color: var(--cy-cyan);
+  box-shadow: 0 0 8px rgba(0,245,255,.3);
+}
+
+/* ============================================================
+   HERO (intro.php landing)
+   ============================================================ */
+.hero-gradient{
+  background:
+    radial-gradient(800px 500px at 50% 0%, rgba(0,245,255,.12), transparent 70%),
+    radial-gradient(700px 500px at 80% 80%, rgba(255,43,214,.10), transparent 70%),
+    linear-gradient(180deg, var(--cy-bg2), var(--cy-bg)) !important;
+}
+/* H1 hero — glitch tinh tế */
+.hero-gradient h1{ position: relative; }
+.hero-gradient h1::after{
+  content: attr(data-text);
+  position:absolute; left:2px; top:0; width:100%; color: var(--cy-magenta);
+  mix-blend-mode: screen; opacity:.5; clip-path: inset(40% 0 50% 0);
+  animation: cy-glitch2 2.6s infinite linear alternate;
+}
+@keyframes cy-glitch2{
+  0%{ clip-path: inset(40% 0 50% 0); transform: translate(0,0) }
+  20%{ clip-path: inset(10% 0 80% 0); transform: translate(-2px,0) }
+  40%{ clip-path: inset(70% 0 10% 0); transform: translate(2px,0) }
+  60%{ clip-path: inset(30% 0 60% 0); transform: translate(-1px,0) }
+  80%{ clip-path: inset(80% 0 5% 0);  transform: translate(1px,0) }
+  100%{ clip-path: inset(40% 0 50% 0); transform: translate(0,0) }
+}
+
+/* ============================================================
+   SCROLLBAR + selection
+   ============================================================ */
+::-webkit-scrollbar{ width:10px; height:10px; }
+::-webkit-scrollbar-track{ background: var(--cy-bg); }
+::-webkit-scrollbar-thumb{ background: linear-gradient(180deg,var(--cy-cyan),var(--cy-magenta)); border-radius:8px; box-shadow: 0 0 8px var(--cy-cyan); }
+::selection{ background: var(--cy-cyan); color:#04121a; }
+
+/* ============================================================
+   FOOTER
+   ============================================================ */
+footer{
+  border-top:1px solid var(--cy-line);
+  background: linear-gradient(180deg, transparent, rgba(0,245,255,.04)) !important;
+}
+footer small{ font-family: var(--cy-fmono) !important; color: var(--cy-cyan) !important; text-shadow: 0 0 8px rgba(0,245,255,.4); letter-spacing:.12em !important; }
+
+/* End cyberpunk.css */

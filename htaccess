@@ -1,0 +1,66 @@
+# Disable directory browsing
+Options All -Indexes
+
+# ----------------------------------------------------------------------
+# Rewrite engine
+# ----------------------------------------------------------------------
+
+<IfModule mod_rewrite.c>
+	Options +FollowSymlinks
+	RewriteEngine On
+
+	# ------------------------------------------------------------
+	# Remove trailing slashes from URLs (except for directories)
+	# Example: /api/test/  ->  /api/test
+	# ------------------------------------------------------------
+	RewriteCond %{REQUEST_FILENAME} !-d
+	RewriteCond %{REQUEST_URI} (.+)/$
+	RewriteRule ^ %1 [L,R=301]
+
+	# ------------------------------------------------------------
+	# Redirect "www.example.com" to "example.com"
+	# ------------------------------------------------------------
+	RewriteCond %{HTTPS} !=on
+	RewriteCond %{HTTP_HOST} ^www\.(.+)$ [NC]
+	RewriteRule ^ http://%1%{REQUEST_URI} [R=301,L]
+
+	# ------------------------------------------------------------
+	# Automatic PHP file resolution
+	# If a request comes without extension and a matching .php
+	# file exists, internally rewrite the request to that file.
+	# Example:
+	# /login  ->  login.php
+	# /api/check  ->  api/check.php
+	# ------------------------------------------------------------
+	RewriteCond %{REQUEST_FILENAME}.php -f
+	RewriteRule ^(.+)$ $1.php [L]
+
+	# ------------------------------------------------------------
+	# If the requested file or directory does not exist,
+	# forward the request to CodeIgniter's front controller.
+	# ------------------------------------------------------------
+	RewriteCond %{REQUEST_FILENAME} !-f
+	RewriteCond %{REQUEST_FILENAME} !-d
+	RewriteRule ^([\s\S]*)$ index.php/$1 [L,NC,QSA]
+
+	# ------------------------------------------------------------
+	# Ensure Authorization headers are preserved
+	# ------------------------------------------------------------
+	RewriteCond %{HTTP:Authorization} .
+	RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+</IfModule>
+
+<IfModule !mod_rewrite.c>
+	# Fallback if mod_rewrite is not available
+	ErrorDocument 404 index.php
+</IfModule>
+
+# Disable server signature
+ServerSignature Off
+
+# php -- BEGIN cPanel-generated handler, do not edit
+# Set the “alt-php74” package as the default PHP handler
+<IfModule mime_module>
+  AddHandler application/x-httpd-alt-php74 .php .php7 .phtml
+</IfModule>
+# php -- END cPanel-generated handler, do not edit

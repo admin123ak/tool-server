@@ -1,0 +1,50 @@
+{
+    "STRICKS-9KVU3PV": {
+        "duration_days": 1,
+        "max_devices": 1,
+        "used_devices": 0,
+        "registered_uids": "",
+        "status": "active",
+        "vendedor": "H0AZA MODZ",
+        "expiry_date": 1776583525,
+        "start_date": 1776497125,
+        "created_at": 1776497125,
+        "notes": ""
+    },
+    "STRICKS-IZI2WEB": {
+        "duration_days": 1,
+        "max_devices": 1,
+        "used_devices": 1,
+        "registered_uids": "3ebae2832d0f3f34a8710392d42e6bdd",
+        "status": "active",
+        "vendedor": "H0AZA MODZ",
+        "expiry_date": 1776586892,
+        "start_date": 1776500492,
+        "created_at": 1776500492,
+        "notes": ""
+    },
+    "STRICKS-03T9XWC": {
+        "duration_days": 999,
+        "max_devices": 1,
+        "used_devices": 0,
+        "registered_uids": "",
+        "status": "active",
+        "vendedor": "سانسو ",
+        "expiry_date": null,
+        "start_date": 1776500980,
+        "created_at": 1776500980,
+        "notes": "يدك فيه ✋"
+    },
+    "Cheater": {
+        "duration_days": 999,
+        "max_devices": 1,
+        "used_devices": 1,
+        "registered_uids": "3ebae2832d0f3f34a8710392d42e6bdd",
+        "status": "active",
+        "vendedor": "SX2 TEAM",
+        "expiry_date": 1862814867,
+        "start_date": 1776501267,
+        "created_at": 1776501158,
+        "notes": "يدك فيه ✋"
+    }
+}

@@ -1,0 +1,7 @@
+# Sensitive - không push lên GitHub
+# (đã PRIVATE nhưng vẫn nên ignore)
+writable/session/*
+writable/logs/*
+writable/cache/*
+*.bak
+error_log

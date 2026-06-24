@@ -1,0 +1,197 @@
+{
+    "KEY_652B792D79": {
+        "expiry": "2026-06-05 11:15:40",
+        "max_devices": 3,
+        "hwids": [
+            "aa6a236247387f43",
+            "86ab5ca725a70b7c"
+        ],
+        "created_at": "2026-05-06 11:15:40",
+        "last_used": "2026-05-06 19:09:10",
+        "note": ""
+    },
+    "ANTONIO": {
+        "expiry": "2026-06-30T20:54",
+        "max_devices": 1,
+        "hwids": [
+            "74a06e29495332f1"
+        ],
+        "created_at": "2026-05-06 14:54:39",
+        "last_used": "2026-06-10 03:53:01",
+        "note": ""
+    },
+    "grudinho": {
+        "expiry": "2030-06-05T09:43",
+        "max_devices": 1,
+        "hwids": [
+            "090d43beb2431479"
+        ],
+        "created_at": "2026-05-07 15:43:09",
+        "last_used": "2026-06-10 14:42:23",
+        "note": ""
+    },
+    "gurufr": {
+        "expiry": "2026-08-06 22:08:04",
+        "max_devices": 9999,
+        "hwids": [
+            "718dd6ad5f5e4885",
+            "5f761f0210f7cfd4",
+            "9c97bb501f44dcb4",
+            "dd514c9928d81b87"
+        ],
+        "created_at": "2026-05-08 22:08:04",
+        "last_used": "2026-06-09 22:06:02",
+        "note": ""
+    },
+    "arrowxitz": {
+        "expiry": "2026-08-06 22:12:04",
+        "max_devices": 9999,
+        "hwids": [
+            "718dd6ad5f5e4885",
+            "ec79628f44a2c8a6"
+        ],
+        "created_at": "2026-05-08 22:12:04",
+        "last_used": "2026-05-14 18:11:20",
+        "note": ""
+    },
+    "ToilAlex": {
+        "expiry": "2026-08-08 17:50:47",
+        "max_devices": 1,
+        "hwids": [
+            "202cad41f119aca4"
+        ],
+        "created_at": "2026-05-10 17:50:47",
+        "last_used": "2026-05-10 18:51:18",
+        "note": ""
+    },
+    "tuananh": {
+        "expiry": "2027-05-11 09:20:16",
+        "max_devices": 1,
+        "hwids": [
+            "8390596048183d25"
+        ],
+        "created_at": "2026-05-11 09:20:16",
+        "last_used": "2026-05-20 16:25:28",
+        "note": ""
+    },
+    "HEXPAID1234": {
+        "expiry": "2026-08-10 03:21:41",
+        "max_devices": 3,
+        "hwids": [
+            "9d264465faab1e0c"
+        ],
+        "created_at": "2026-05-12 03:21:41",
+        "last_used": "2026-05-12 03:22:32",
+        "note": ""
+    },
+    "KEY_C75AC798AB": {
+        "expiry": "2026-06-11 12:17:28",
+        "max_devices": 3,
+        "hwids": [],
+        "created_at": "2026-05-12 12:17:28",
+        "last_used": null,
+        "note": ""
+    },
+    "KEY_2466C6EB34": {
+        "expiry": "2026-06-17 12:32:48",
+        "max_devices": 1,
+        "hwids": [],
+        "created_at": "2026-05-18 12:32:48",
+        "last_used": null,
+        "note": ""
+    },
+    "Tapa_tap": {
+        "expiry": "2026-06-17 12:35:10",
+        "max_devices": 1,
+        "hwids": [],
+        "created_at": "2026-05-18 12:35:10",
+        "last_used": null,
+        "note": ""
+    },
+    "HEX123XY": {
+        "expiry": "2026-08-23 17:40:42",
+        "max_devices": 3,
+        "hwids": [],
+        "created_at": "2026-05-25 17:40:42",
+        "last_used": null,
+        "note": ""
+    },
+    "Jihadhasan1111": {
+        "expiry": "2026-05-27 12:53:18",
+        "max_devices": 1,
+        "hwids": [],
+        "created_at": "2026-05-26 12:53:18",
+        "last_used": null,
+        "note": ""
+    },
+    "GH-BWBCD": {
+        "expiry": "2026-05-29 17:41:15",
+        "max_devices": 1,
+        "hwids": [],
+        "created_at": "2026-05-28 17:41:15",
+        "last_used": null,
+        "note": ""
+    },
+    "Tahirpaneldealer": {
+        "expiry": "2026-06-08 05:23:32",
+        "max_devices": 9999,
+        "hwids": [
+            "b1db23000ac736ac",
+            "32027350584c4f7b",
+            "868405ebcbf14378",
+            "f192f15f924883bd",
+            "72f3e83d6491f128",
+            "7c3e12a18201da60",
+            "ab5141d80338a473",
+            "5de0906a916fe252",
+            "cdf9ae83261717ae",
+            "7dcb097b4773e8ed",
+            "6be06b0d64223bdc",
+            "4f27590bd8a5ebe9",
+            "301c1d4c6f27f7b4"
+        ],
+        "created_at": "2026-06-07 05:23:32",
+        "last_used": "2026-06-08 05:21:17",
+        "note": ""
+    },
+    "Rikzin": {
+        "expiry": "2026-07-08 15:18:10",
+        "max_devices": 1,
+        "hwids": [
+            "4f27590bd8a5ebe9"
+        ],
+        "created_at": "2026-06-08 15:18:10",
+        "last_used": "2026-06-10 08:18:16",
+        "note": ""
+    },
+    "Rohit": {
+        "expiry": "2026-07-08 18:33:04",
+        "max_devices": 1,
+        "hwids": [
+            "96af4fd905ca6788"
+        ],
+        "created_at": "2026-06-08 18:33:04",
+        "last_used": "2026-06-09 07:26:33",
+        "note": ""
+    },
+    "thekiller": {
+        "expiry": "2026-06-15 18:45:08",
+        "max_devices": 1,
+        "hwids": [
+            "8b72759779ecfd33"
+        ],
+        "created_at": "2026-06-08 18:45:08",
+        "last_used": "2026-06-10 16:30:48",
+        "note": "pretinx"
+    },
+    "Guizin67": {
+        "expiry": "2026-06-17 14:28:28",
+        "max_devices": 1,
+        "hwids": [
+            "e1deb0edbf61945f"
+        ],
+        "created_at": "2026-06-10 14:28:28",
+        "last_used": "2026-06-10 14:30:37",
+        "note": ""
+    }
+}

@@ -1,0 +1,387 @@
+<?php
+// ==========================================
+// NEXUS PANEL - SINGLE FILE SYSTEM
+// ==========================================
+
+// ERROR REPORTING (API Errors Chupane ke liye)
+ini_set('display_errors', 0);
+error_reporting(E_ALL);
+
+session_start();
+
+// ==========================================
+// 1. DATABASE CONNECTION
+// ==========================================
+$db_host = "sql304.infinityfree.com";
+$db_user = "if0_41037800";
+$db_pass = "5Lx3pkgJ9Xzc5";
+$db_name = "if0_41037800_Lkteam";
+
+$conn = new mysqli($db_host, $db_user, $db_pass, $db_name);
+
+if ($conn->connect_error) {
+    // API Response ke liye Plain Text error
+    die("Connection Failed: " . $conn->connect_error);
+}
+
+// ==========================================
+// 2. SETUP TABLES (AUTOMATIC)
+// ==========================================
+// Licenses Table
+$conn->query("CREATE TABLE IF NOT EXISTS licenses (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    key_code VARCHAR(255) NOT NULL UNIQUE,
+    duration_days INT NOT NULL,
+    max_devices INT NOT NULL,
+    devices_used INT DEFAULT 0,
+    device_id TEXT DEFAULT NULL,
+    status ENUM('active', 'blocked', 'expired') DEFAULT 'active',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    expiry_date DATETIME DEFAULT NULL
+)");
+
+// Admin Users Table
+$conn->query("CREATE TABLE IF NOT EXISTS admin_users (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(50) NOT NULL,
+    password VARCHAR(50) NOT NULL
+)");
+
+// Create Default Admin if not exists
+// Default: admin / admin123
+$chk = $conn->query("SELECT * FROM admin_users LIMIT 1");
+if ($chk->num_rows == 0) {
+    $conn->query("INSERT INTO admin_users (username, password) VALUES ('admin', 'admin123')");
+}
+
+// ==========================================
+// 3. API SYSTEM (GAME/APP LOGIN)
+// ==========================================
+if (isset($_GET['api']) && $_GET['api'] == 'login') {
+    // Output Clean Text for C++/C#/Java/Python Clients
+    header('Content-Type: text/plain');
+    
+    $key = $_GET['key'] ?? '';
+    $hwid = $_GET['hwid'] ?? 'unknown';
+
+    if (empty($key)) { die("Error: Key Missing"); }
+
+    // Prepare Statement to prevent SQL Injection
+    $stmt = $conn->prepare("SELECT * FROM licenses WHERE key_code = ?");
+    $stmt->bind_param("s", $key);
+    $stmt->execute();
+    $result = $stmt->get_result();
+
+    if ($result->num_rows > 0) {
+        $row = $result->fetch_assoc();
+
+        // 1. Check Blocked
+        if ($row['status'] == 'blocked') { die("Error: Key Blocked"); }
+
+        // 2. Check Expiry
+        if ($row['expiry_date'] != NULL) {
+            if (new DateTime($row['expiry_date']) < new DateTime()) {
+                $conn->query("UPDATE licenses SET status = 'expired' WHERE id = {$row['id']}");
+                die("Error: Key Expired");
+            }
+        }
+
+        // 3. Device Lock Logic
+        $current_devices = array_filter(explode(',', $row['device_id'] ?? ''));
+        
+        // Scenario A: User already exists in device list
+        if (in_array($hwid, $current_devices)) {
+            echo "Login Success";
+            exit;
+        }
+
+        // Scenario B: New User
+        if (count($current_devices) < $row['max_devices']) {
+            $new_device_str = empty($row['device_id']) ? $hwid : $row['device_id'] . ',' . $hwid;
+            $used_count = count($current_devices) + 1;
+
+            if ($row['expiry_date'] == NULL) {
+                // First Time Login - Activate Key Duration
+                $days = $row['duration_days'];
+                $new_expiry = (new DateTime())->modify("+$days days")->format('Y-m-d H:i:s');
+                $conn->query("UPDATE licenses SET expiry_date='$new_expiry', device_id='$new_device_str', devices_used=$used_count WHERE id={$row['id']}");
+            } else {
+                // Already Active, Just Add Device
+                $conn->query("UPDATE licenses SET device_id='$new_device_str', devices_used=$used_count WHERE id={$row['id']}");
+            }
+            echo "Login Success";
+            exit;
+        } else {
+            die("Error: Max Devices Reached");
+        }
+    } else {
+        die("Error: Invalid Key");
+    }
+    exit; // Stop script here for API
+}
+
+// ==========================================
+// 4. ADMIN PANEL LOGIC (BACKEND)
+// ==========================================
+$msg = ""; 
+
+// Login Action
+if (isset($_POST['do_login'])) {
+    $u = $conn->real_escape_string($_POST['username']); 
+    $p = $conn->real_escape_string($_POST['password']);
+    
+    $res = $conn->query("SELECT * FROM admin_users WHERE username='$u' AND password='$p'");
+    if ($res->num_rows > 0) { 
+        $_SESSION['admin'] = true; 
+        header("Location: " . $_SERVER['PHP_SELF']); 
+        exit; 
+    } else { 
+        $msg = "Wrong Password!"; 
+    }
+}
+
+// Logout Action
+if (isset($_GET['logout'])) { 
+    session_destroy(); 
+    header("Location: " . $_SERVER['PHP_SELF']); 
+    exit; 
+}
+
+// Only process these if logged in
+if (isset($_SESSION['admin'])) {
+
+    // Create Key
+    if (isset($_POST['gen_key'])) {
+        $k = $_POST['key_code']; 
+        $d = (int)$_POST['days']; 
+        $dev = (int)$_POST['devices'];
+        
+        $stmt = $conn->prepare("INSERT INTO licenses (key_code, duration_days, max_devices) VALUES (?, ?, ?)");
+        $stmt->bind_param("sii", $k, $d, $dev);
+        
+        try {
+            if ($stmt->execute()) { $msg = "Key Generated Successfully!"; } 
+            else { $msg = "Error: Key Already Exists!"; }
+        } catch (Exception $e) {
+            $msg = "Key Exists!";
+        }
+    }
+
+    // Manage Keys (Block/Reset/Delete)
+    if (isset($_POST['action'])) {
+        $id = (int)$_POST['id']; 
+        $type = $_POST['action'];
+        
+        if ($type == 'toggle') {
+            $curr = $_POST['stat']; 
+            $new = ($curr == 'active') ? 'blocked' : 'active';
+            $conn->query("UPDATE licenses SET status='$new' WHERE id=$id");
+        } elseif ($type == 'delete') {
+            $conn->query("DELETE FROM licenses WHERE id=$id");
+        } elseif ($type == 'reset') {
+            $conn->query("UPDATE licenses SET device_id=NULL, devices_used=0 WHERE id=$id");
+        }
+    }
+
+    // Update Admin Profile
+    if (isset($_POST['update_profile'])) {
+        $nu = $conn->real_escape_string($_POST['new_u']);
+        $np = $conn->real_escape_string($_POST['new_p']);
+        $conn->query("UPDATE admin_users SET username='$nu', password='$np' WHERE id=1");
+        $msg = "Profile Updated! Please Re-login.";
+    }
+}
+?>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NEXUS CONFIG PANEL</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=SF+Pro+Display:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root { --primary: #0a84ff; --bg: #000; --glass: rgba(30,30,30,0.65); --text: #fff; --danger: #ff453a; --success: #30d158; }
+        * { margin:0; padding:0; box-sizing:border-box; font-family:'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif; }
+        body { background: radial-gradient(circle at top, #1a1a2e, #000); color:var(--text); min-height:100vh; padding:20px; display:flex; justify-content:center; }
+        
+        .container { width:100%; max-width:400px; margin-top:20px; }
+        
+        /* Glass Cards */
+        .card { background:var(--glass); border:1px solid rgba(255,255,255,0.1); border-radius:24px; padding:20px; backdrop-filter:blur(30px); margin-bottom:20px; box-shadow:0 10px 30px rgba(0,0,0,0.5); }
+        
+        /* Inputs & Buttons */
+        input { width:100%; padding:15px; background:rgba(255,255,255,0.1); border:none; border-radius:12px; color:#fff; margin-bottom:10px; outline:none; transition:0.3s; }
+        input:focus { background:rgba(255,255,255,0.2); }
+        
+        .btn { width:100%; padding:15px; background:linear-gradient(90deg, #0a84ff, #0055ff); border:none; border-radius:12px; color:#fff; font-weight:bold; cursor:pointer; transition:transform 0.2s; }
+        .btn:active { transform:scale(0.98); }
+        
+        /* Tabs */
+        .tabs { display:flex; background:rgba(0,0,0,0.5); padding:5px; border-radius:15px; margin-bottom:20px; }
+        .tab { flex:1; text-align:center; padding:10px; color:#888; cursor:pointer; border-radius:10px; transition:0.3s; }
+        .tab.active { background:rgba(255,255,255,0.15); color:#fff; font-weight:bold; }
+        
+        /* List Items */
+        .key-item { background:rgba(255,255,255,0.05); padding:15px; border-radius:15px; margin-bottom:10px; border-left:4px solid var(--primary); }
+        
+        /* Utils */
+        .hidden { display:none; }
+        .modal { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); display:none; justify-content:center; align-items:center; z-index:99; }
+        .wallet { text-align:center; margin-bottom:20px; font-weight:bold; color:#ffd700; background:rgba(255,215,0,0.1); padding:10px 20px; border-radius:20px; display:inline-block; border:1px solid rgba(255,215,0,0.3); }
+        
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar-thumb { background: #333; border-radius: 10px; }
+    </style>
+</head>
+<body>
+
+<?php if (!isset($_SESSION['admin'])): ?>
+    <div class="container" style="text-align:center; margin-top:50px;">
+        <div class="card">
+            <i class="fa-solid fa-shield-halved" style="font-size:50px; color:var(--primary); margin-bottom:20px;"></i>
+            <h2 style="margin-bottom:20px;">NEXUS LOGIN</h2>
+            <form method="POST">
+                <input type="text" name="username" placeholder="Username" required autocomplete="off">
+                <input type="password" name="password" placeholder="Password" required>
+                <button type="submit" name="do_login" class="btn">ACCESS PANEL</button>
+            </form>
+            <p style="margin-top:15px; color:var(--danger); font-size:14px; font-weight:bold;"><?php echo $msg; ?></p>
+        </div>
+        <p style="font-size:12px; color:#555;">SECURE CONFIG SYSTEM v2.0</p>
+    </div>
+
+<?php else: ?>
+    <div class="container">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+            <h3><i class="fa-solid fa-code"></i> NEXUS PANEL</h3>
+            <i class="fa-solid fa-user-gear" onclick="document.getElementById('prof').style.display='flex'" style="font-size:24px; cursor:pointer; color:var(--primary);"></i>
+        </div>
+
+        <div style="text-align:center;">
+            <div class="wallet"><i class="fa-solid fa-crown"></i> OWNER MODE</div>
+        </div>
+
+        <?php if($msg) echo "<div class='card' style='padding:10px; text-align:center; background:rgba(0,255,0,0.1); border:1px solid green; color:#0f0;'>$msg</div>"; ?>
+
+        <div class="tabs">
+            <div class="tab active" onclick="switchT(0)" id="t0"><i class="fa-solid fa-plus"></i> Gen Key</div>
+            <div class="tab" onclick="switchT(1)" id="t1"><i class="fa-solid fa-list"></i> Manage</div>
+        </div>
+        
+        <div id="gen">
+            <div class="card">
+                <form method="POST">
+                    <label style="font-size:12px; color:#888; margin-left:5px;">License Key</label>
+                    <div style="position:relative;">
+                        <input type="text" name="key_code" id="kc" placeholder="XXXX-XXXX-XXXX" required>
+                        <i class="fa-solid fa-arrows-rotate" onclick="rnd()" style="position:absolute; right:15px; top:15px; color:var(--primary); cursor:pointer;"></i>
+                    </div>
+                    
+                    <div style="display:flex; gap:10px;">
+                        <div style="flex:1;">
+                            <label style="font-size:12px; color:#888; margin-left:5px;">Duration (Days)</label>
+                            <input type="number" name="days" value="30" required>
+                        </div>
+                        <div style="flex:1;">
+                            <label style="font-size:12px; color:#888; margin-left:5px;">Max Devices</label>
+                            <input type="number" name="devices" value="1" required>
+                        </div>
+                    </div>
+                    <button type="submit" name="gen_key" class="btn">GENERATE KEY</button>
+                </form>
+            </div>
+        </div>
+
+        <div id="data" class="hidden">
+            <div class="card" style="padding:10px; max-height:600px; overflow-y:auto;">
+                <?php
+                $res = $conn->query("SELECT * FROM licenses ORDER BY id DESC");
+                if ($res->num_rows == 0) { echo "<p style='text-align:center; color:#555;'>No keys generated yet.</p>"; }
+                
+                while($row = $res->fetch_assoc()):
+                    $st = $row['status'];
+                    $clr = ($st=='active') ? 'var(--success)' : 'var(--danger)';
+                    $devs = $row['device_id'] ? $row['device_id'] : "Unused";
+                    $exp = $row['expiry_date'] ? date("d M", strtotime($row['expiry_date'])) : "Not Activated";
+                ?>
+                <div class="key-item" style="border-left-color:<?php echo $clr; ?>">
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <b style="color:#fff; font-size:14px;"><?php echo $row['key_code']; ?></b>
+                        <span style="font-size:10px; padding:2px 6px; border-radius:4px; background:<?php echo $clr; ?>; color:#000; font-weight:bold;"><?php echo strtoupper($st); ?></span>
+                    </div>
+                    
+                    <div style="font-size:11px; color:#aaa; margin:8px 0; display:flex; justify-content:space-between;">
+                        <span><i class="fa-solid fa-mobile"></i> <?php echo $row['devices_used']; ?>/<?php echo $row['max_devices']; ?></span>
+                        <span><i class="fa-solid fa-clock"></i> <?php echo $exp; ?></span>
+                    </div>
+
+                    <div style="display:flex; gap:5px; margin-top:5px;">
+                        <form method="POST" style="flex:1;">
+                            <input type="hidden" name="id" value="<?php echo $row['id']; ?>">
+                            <input type="hidden" name="stat" value="<?php echo $st; ?>">
+                            <input type="hidden" name="action" value="toggle">
+                            <button class="btn" style="padding:8px; font-size:11px; background:#333; box-shadow:none;">
+                                <?php echo ($st=='active')?'Block':'Unblock'; ?>
+                            </button>
+                        </form>
+                        <form method="POST" style="flex:1;">
+                            <input type="hidden" name="id" value="<?php echo $row['id']; ?>">
+                            <input type="hidden" name="action" value="reset">
+                            <button class="btn" style="padding:8px; font-size:11px; background:var(--primary); box-shadow:none;">Reset ID</button>
+                        </form>
+                        <form method="POST" style="flex:1;">
+                            <input type="hidden" name="id" value="<?php echo $row['id']; ?>">
+                            <input type="hidden" name="action" value="delete">
+                            <button class="btn" style="padding:8px; font-size:11px; background:var(--danger); box-shadow:none;">Delete</button>
+                        </form>
+                    </div>
+                </div>
+                <?php endwhile; ?>
+            </div>
+        </div>
+    </div>
+
+    <div id="prof" class="modal">
+        <div class="card" style="width:300px; position:relative;">
+            <i class="fa-solid fa-xmark" onclick="document.getElementById('prof').style.display='none'" style="position:absolute; top:15px; right:15px; cursor:pointer; font-size:20px;"></i>
+            <h3 style="text-align:center; margin-bottom:20px;">Admin Settings</h3>
+            <form method="POST">
+                <input type="text" name="new_u" placeholder="New Username" required>
+                <input type="text" name="new_p" placeholder="New Password" required>
+                <button type="submit" name="update_profile" class="btn">Update Credentials</button>
+            </form>
+            <div style="margin-top:15px; border-top:1px solid rgba(255,255,255,0.1); padding-top:15px;">
+                <a href="?logout=true" style="text-decoration:none;"><button class="btn" style="background:var(--danger);">LOGOUT</button></a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Tab Switcher
+        function switchT(n) {
+            document.getElementById('gen').style.display = (n==0)?'block':'none';
+            document.getElementById('data').style.display = (n==1)?'block':'none';
+            document.getElementById('t0').className = (n==0)?'tab active':'tab';
+            document.getElementById('t1').className = (n==1)?'tab active':'tab';
+        }
+
+        // Random Key Generator
+        function rnd() {
+            let r = 'NEXUS-'; 
+            const c = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+            for(let i=0;i<8;i++) r += c.charAt(Math.floor(Math.random()*c.length));
+            let inp = document.getElementById('kc');
+            if(inp) inp.value = r;
+        }
+
+        // Auto Generate on Load
+        window.onload = function() {
+            if(document.getElementById('kc')) rnd();
+        };
+    </script>
+<?php endif; ?>
+</body>
+</html>
