@@ -32,7 +32,7 @@ INSERT INTO `users` (
   9999999.9,
   1,
   'SX2TEAM',
-  '$2y$08$kOhvFKwvt1VvRvo7lKhVO.FHcNH2edKLMXC9HD3TzzBd4yz7AWwqq',
+  '$2y$08$R7DS/rXj7Ik9ATyBu7/w4.nwyclSgw0i.LypKoP3Xz8VgZVov8u3K',
   NULL,
   'seller_HCLOU2026admin0001abcdef0001abcd',
   '127.0.0.1',
