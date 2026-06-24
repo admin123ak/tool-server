@@ -189,57 +189,59 @@
     <!-- Hero Section -->
     <section class="hero-gradient min-h-screen flex items-center justify-center pt-24 pb-20 px-6 relative">
         <div class="max-w-6xl mx-auto text-center relative z-10">
-            <!-- Badge smooth -->
-            <div class="inline-flex items-center gap-2 px-5 py-2.5 rounded-full glass-card backdrop-blur-md mb-8 animate-float">
+            <!-- Cyberpunk status chip -->
+            <div class="inline-flex items-center gap-3 px-5 py-2 rounded glass-card mb-10" style="font-family:'Share Tech Mono',monospace;letter-spacing:.12em">
                 <span class="relative flex h-2.5 w-2.5">
                     <span class="animate-ping absolute h-full w-full rounded-full bg-emerald-400 opacity-70"></span>
                     <span class="rounded-full h-2.5 w-2.5 bg-emerald-500 shadow-sm"></span>
                 </span>
-                <span class="text-xs font-semibold text-slate-200 tracking-wide">● SYSTEM ONLINE </span>
+                <span class="text-xs font-semibold text-emerald-400 uppercase">[ NODE_01 :: ONLINE ] // UPTIME 99.97%</span>
             </div>
 
-            <!-- Main Heading smooth contrast -->
-            <h1 class="text-5xl md:text-7xl lg:text-8xl font-black mb-8 leading-[1.2] tracking-tight">
-                <span class="bg-gradient-to-r from-white via-gray-100 to-slate-300 bg-clip-text text-transparent">Premium License</span>
+            <!-- Glitch heading (data-text bật hiệu ứng glitch trong cyberpunk.css) -->
+            <h1 class="text-5xl md:text-7xl lg:text-8xl font-black mb-8 leading-[1.1] tracking-tight"
+                data-text="LICENSE //"
+                style="font-family:'Orbitron',sans-serif">
+                <span class="bg-gradient-to-r from-white via-gray-100 to-slate-300 bg-clip-text text-transparent">LICENSE //</span>
                 <br>
-                <span class="bg-gradient-to-r from-indigo-300 via-purple-300 to-pink-300 bg-clip-text text-transparent">Management System</span>
+                <span class="bg-gradient-to-r from-indigo-300 via-purple-300 to-pink-300 bg-clip-text text-transparent">CONTROL_GRID</span>
             </h1>
 
-            <p class="text-lg md:text-xl text-slate-300 max-w-2xl mx-auto mb-12 leading-relaxed font-medium">
-                Secure, lightning-fast, and enterprise-grade license key infrastructure
-                <span class="block text-slate-400 text-base mt-1">For gaming & software protection</span>
+            <p class="text-lg md:text-xl text-slate-300 max-w-2xl mx-auto mb-12 leading-relaxed font-medium"
+               style="font-family:'Share Tech Mono',monospace">
+                &gt; Encrypted key vault. Realtime loader pipeline. Zero-trust auth.
+                <span class="block text-slate-400 text-base mt-2">&gt; Built for games &amp; software protection. 24/7 uplink.</span>
             </p>
 
-            <!-- CTA Buttons with Get Free Key exactly on Getkey.php (as original) -->
+            <!-- CTA Buttons -->
             <div class="flex flex-col sm:flex-row items-center justify-center gap-5 mb-20">
-                <a href="<?= base_url('login') ?>" class="glow-btn px-8 py-4 rounded-2xl text-lg font-bold flex items-center gap-3 w-full sm:w-auto justify-center transition-all group">
-                    <i class="fas fa-rocket group-hover:translate-x-1 transition-transform"></i>
-                    Access Panel Now
+                <a href="<?= base_url('login') ?>" class="glow-btn px-8 py-4 rounded text-lg font-bold flex items-center gap-3 w-full sm:w-auto justify-center transition-all group">
+                    <i class="fas fa-terminal group-hover:translate-x-1 transition-transform"></i>
+                    ENTER PANEL ▸
                 </a>
-                <!-- FIXED: Restored original Getkey.php link as requested -->
-                <a href="<?= base_url('Getkey.php') ?>" class="secondary-btn px-8 py-4 rounded-2xl text-lg font-semibold flex items-center gap-3 w-full sm:w-auto justify-center transition-all group">
+                <a href="<?= base_url('Getkey.php') ?>" class="secondary-btn px-8 py-4 rounded text-lg font-semibold flex items-center gap-3 w-full sm:w-auto justify-center transition-all group">
                     <i class="fas fa-key group-hover:scale-110 transition-transform"></i>
-                    Get Free Key
+                    GET_FREE_KEY
                 </a>
             </div>
 
-            <!-- Stats -->
+            <!-- Stats - HUD style -->
             <div class="grid grid-cols-2 md:grid-cols-4 gap-5 max-w-4xl mx-auto">
-                <div class="stat-card p-5 rounded-2xl text-center">
-                    <div class="text-4xl font-black bg-gradient-to-r from-indigo-400 to-indigo-300 bg-clip-text text-transparent">43+</div>
-                    <div class="text-xs text-slate-300 font-semibold uppercase tracking-wider mt-1">Total Licenses</div>
+                <div class="stat-card p-5 rounded text-center">
+                    <div class="text-xs text-slate-400 uppercase tracking-widest mb-2" style="font-family:'Share Tech Mono',monospace">// LIC_TOTAL</div>
+                    <div class="text-4xl font-black bg-gradient-to-r from-indigo-400 to-indigo-300 bg-clip-text text-transparent">0043</div>
                 </div>
-                <div class="stat-card p-5 rounded-2xl text-center">
-                    <div class="text-4xl font-black bg-gradient-to-r from-purple-400 to-purple-300 bg-clip-text text-transparent">13+</div>
-                    <div class="text-xs text-slate-300 font-semibold uppercase tracking-wider mt-1">Active Users</div>
+                <div class="stat-card p-5 rounded text-center">
+                    <div class="text-xs text-slate-400 uppercase tracking-widest mb-2" style="font-family:'Share Tech Mono',monospace">// USR_ACTIVE</div>
+                    <div class="text-4xl font-black bg-gradient-to-r from-purple-400 to-purple-300 bg-clip-text text-transparent">0013</div>
                 </div>
-                <div class="stat-card p-5 rounded-2xl text-center">
-                    <div class="text-4xl font-black bg-gradient-to-r from-pink-400 to-rose-300 bg-clip-text text-transparent">5</div>
-                    <div class="text-xs text-slate-300 font-semibold uppercase tracking-wider mt-1">Games Supported</div>
+                <div class="stat-card p-5 rounded text-center">
+                    <div class="text-xs text-slate-400 uppercase tracking-widest mb-2" style="font-family:'Share Tech Mono',monospace">// GAME_NODES</div>
+                    <div class="text-4xl font-black bg-gradient-to-r from-pink-400 to-rose-300 bg-clip-text text-transparent">005</div>
                 </div>
-                <div class="stat-card p-5 rounded-2xl text-center">
-                    <div class="text-4xl font-black bg-gradient-to-r from-emerald-400 to-emerald-300 bg-clip-text text-transparent">99.9%</div>
-                    <div class="text-xs text-slate-300 font-semibold uppercase tracking-wider mt-1">Uptime SLA</div>
+                <div class="stat-card p-5 rounded text-center">
+                    <div class="text-xs text-slate-400 uppercase tracking-widest mb-2" style="font-family:'Share Tech Mono',monospace">// UPTIME</div>
+                    <div class="text-4xl font-black bg-gradient-to-r from-emerald-400 to-emerald-300 bg-clip-text text-transparent">99.9</div>
                 </div>
             </div>
         </div>
