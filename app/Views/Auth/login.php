@@ -128,13 +128,14 @@
 <body class="min-h-screen flex items-center justify-center p-5">
 
     <div class="w-full max-w-md fade-up">
-        <!-- Logo/Header with refined glow -->
+        <!-- Cyberpunk Auth Header -->
         <div class="text-center mb-8">
-            <div class="w-20 h-20 mx-auto mb-5 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-xl shadow-indigo-500/20 transition-transform hover:scale-105 duration-300">
-                <i class="fas fa-shield-alt text-4xl text-white"></i>
+            <div class="w-20 h-20 mx-auto mb-5 rounded flex items-center justify-center shadow-xl transition-transform hover:scale-105 duration-300"
+                 style="background:linear-gradient(135deg,var(--cy-cyan,#00f5ff),var(--cy-magenta,#ff2bd6));box-shadow:0 0 24px rgba(0,245,255,.5),0 0 48px rgba(255,43,214,.3)">
+                <i class="fas fa-shield-alt text-4xl text-black"></i>
             </div>
-            <h1 class="text-3xl font-extrabold bg-gradient-to-r from-white to-slate-300 bg-clip-text text-transparent tracking-tight">Welcome Back</h1>
-            <p class="text-slate-400 mt-1 text-sm">Sign in to your SX2 LADOR account</p>
+            <h1 class="text-3xl font-extrabold bg-gradient-to-r from-white to-slate-300 bg-clip-text text-transparent tracking-tight" data-text="// AUTH.REQUIRED" style="font-family:'Orbitron',sans-serif">// AUTH.REQUIRED</h1>
+            <p class="text-slate-400 mt-2 text-sm" style="font-family:'Share Tech Mono',monospace">&gt; Connect to SX2.LADOR mainframe</p>
         </div>
 
         <!-- Login Card — FIXED: using glass-card class instead of broken bg-slate-800 -->
@@ -167,7 +168,7 @@
                         <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                             <i class="fas fa-user-circle text-slate-400 text-md"></i>
                         </div>
-                        <input type="text" name="username" class="login-input w-full pl-11 pr-4 py-3.5 rounded-xl font-medium placeholder:text-slate-500" placeholder="Username" required autocomplete="off">
+                        <input type="text" name="username" class="login-input w-full pl-11 pr-4 py-3.5 rounded font-medium placeholder:text-slate-500" placeholder="OPERATOR_ID" required autocomplete="off" style="font-family:'Share Tech Mono',monospace;letter-spacing:.1em">
                     </div>
                     <?php if ($validation->hasError('username')) : ?>
                         <p class="text-rose-400 text-xs mt-2 ml-1 flex items-center gap-1"><i class="fas fa-circle-exclamation text-[10px]"></i> <?= $validation->getError('username') ?></p>
@@ -181,7 +182,7 @@
                             <i class="fas fa-lock text-slate-400"></i>
                         </div>
                         <!-- Added font-mono class for consistent dots/text sizing -->
-                        <input type="password" name="password" id="password" class="login-input w-full pl-11 pr-11 py-3.5 rounded-xl font-mono font-medium placeholder:text-slate-500 tracking-wide" placeholder="••••••••" required>
+                        <input type="password" name="password" id="password" class="login-input w-full pl-11 pr-11 py-3.5 rounded font-mono font-medium placeholder:text-slate-500 tracking-wide" placeholder="•••• ACCESS_CODE ••••" required style="font-family:'Share Tech Mono',monospace">
                         <button type="button" onclick="togglePassword()" class="absolute inset-y-0 right-0 pr-4 flex items-center text-slate-400 hover:text-slate-200 transition cursor-pointer">
                             <i class="fas fa-eye" id="eyeIcon"></i>
                         </button>
@@ -191,10 +192,10 @@
                     <?php endif; ?>
                 </div>
 
-                <!-- Submit Button with refined design -->
-                <button type="submit" class="glow-btn w-full py-3.5 rounded-xl text-white font-bold text-lg tracking-wide flex items-center justify-center gap-2 transition-all duration-300 group">
-                    <i class="fas fa-arrow-right-to-bracket text-sm group-hover:translate-x-0.5 transition-transform"></i>
-                    Sign In
+                <!-- Cyberpunk submit -->
+                <button type="submit" class="glow-btn w-full py-3.5 rounded text-white font-bold text-lg tracking-widest flex items-center justify-center gap-2 transition-all duration-300 group" style="font-family:'Orbitron',sans-serif">
+                    <i class="fas fa-terminal text-sm group-hover:translate-x-0.5 transition-transform"></i>
+                    AUTHORIZE ▸
                 </button>
 
             <?= form_close() ?>

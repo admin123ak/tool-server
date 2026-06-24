@@ -140,24 +140,25 @@
     <aside id="sidebar" class="fixed inset-y-0 left-0 z-50 w-64 glass-panel transform -translate-x-full transition-transform duration-300 ease-in-out md:relative md:translate-x-0 md:flex md:flex-col flex-col justify-between border-r border-white/10 shadow-2xl">
         <div>
             <div class="h-20 flex items-center px-6 border-b border-white/10">
-                <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center mr-3 shadow-lg">
-                    <i class="fas fa-shield-alt text-white text-base"></i>
+                <div class="w-9 h-9 rounded flex items-center justify-center mr-3 shadow-lg" style="background:linear-gradient(135deg,var(--cy-cyan,#00f5ff),var(--cy-magenta,#ff2bd6));box-shadow:0 0 14px rgba(0,245,255,.5)">
+                    <i class="fas fa-shield-alt text-black text-base"></i>
                 </div>
                 <div>
-                    <h1 class="font-bold text-white text-lg tracking-tight">SX2 LADOR</h1>
-                    <span class="text-[10px] text-slate-400 font-mono">LICENSE MANAGER</span>
+                    <h1 class="font-bold text-white text-lg tracking-tight" style="font-family:'Orbitron',sans-serif">SX2.LADOR</h1>
+                    <span class="text-[10px] text-slate-400" style="font-family:'Share Tech Mono',monospace">// LICENSE.NODE</span>
                 </div>
             </div>
-            <nav class="mt-6 px-3 space-y-1">
-                <div class="px-3 mb-2 text-[10px] font-bold text-slate-500 uppercase">Main</div>
-                <a href="<?= site_url('dashboard') ?>" class="sidebar-link active flex items-center px-3 py-3 rounded-lg text-slate-300"><i class="fas fa-chart-pie w-6 mr-2 text-indigo-400"></i><span>Overview</span></a>
-                <a href="<?= site_url('keys/generate') ?>" class="sidebar-link flex items-center px-3 py-3 rounded-lg text-slate-300"><i class="fas fa-bolt w-6 mr-2"></i><span>Generate Keys</span></a>
-                <a href="<?= site_url('keys') ?>" class="sidebar-link flex items-center px-3 py-3 rounded-lg text-slate-300"><i class="fas fa-key w-6 mr-2"></i><span>License Manager</span></a>
-                <div class="px-3 mt-6 mb-2 text-[10px] font-bold text-slate-500 uppercase">Configuration</div>
-                <a href="<?= site_url('settings') ?>" class="sidebar-link flex items-center px-3 py-3 rounded-lg text-slate-300"><i class="fas fa-cog w-6 mr-2"></i><span>Settings</span></a>
+            <nav class="mt-6 px-3 space-y-1" style="font-family:'Share Tech Mono',monospace">
+                <div class="px-3 mb-2 text-[10px] font-bold text-slate-500 uppercase tracking-widest">▸ MAIN</div>
+                <a href="<?= site_url('dashboard') ?>" class="sidebar-link active flex items-center px-3 py-3 rounded text-slate-300"><i class="fas fa-chart-pie w-6 mr-2 text-indigo-400"></i><span>OVERVIEW</span></a>
+                <a href="<?= site_url('keys/generate') ?>" class="sidebar-link flex items-center px-3 py-3 rounded text-slate-300"><i class="fas fa-bolt w-6 mr-2"></i><span>GENERATE_KEYS</span></a>
+                <a href="<?= site_url('keys') ?>" class="sidebar-link flex items-center px-3 py-3 rounded text-slate-300"><i class="fas fa-key w-6 mr-2"></i><span>LICENSE_MGR</span></a>
+                <div class="px-3 mt-6 mb-2 text-[10px] font-bold text-slate-500 uppercase tracking-widest">▸ CONFIG</div>
+                <a href="<?= site_url('settings') ?>" class="sidebar-link flex items-center px-3 py-3 rounded text-slate-300"><i class="fas fa-cog w-6 mr-2"></i><span>SETTINGS</span></a>
                 <?php if (isset($user->level) && $user->level == 1) : ?>
-                <a href="<?= site_url('admin/manage-users') ?>" class="sidebar-link flex items-center px-3 py-3 rounded-lg text-slate-300"><i class="fas fa-users w-6 mr-2"></i><span>Manage Users</span></a>
-                <a href="<?= site_url('admin/create-referral') ?>" class="sidebar-link flex items-center px-3 py-3 rounded-lg text-slate-300"><i class="fas fa-user-plus w-6 mr-2"></i><span>CREATE NEW USER</span></a>
+                <div class="px-3 mt-6 mb-2 text-[10px] font-bold text-slate-500 uppercase tracking-widest">▸ ADMIN.SUDO</div>
+                <a href="<?= site_url('admin/manage-users') ?>" class="sidebar-link flex items-center px-3 py-3 rounded text-slate-300"><i class="fas fa-users w-6 mr-2"></i><span>MANAGE_USERS</span></a>
+                <a href="<?= site_url('admin/create-referral') ?>" class="sidebar-link flex items-center px-3 py-3 rounded text-slate-300"><i class="fas fa-user-plus w-6 mr-2"></i><span>CREATE_USER</span></a>
                 <?php endif; ?>
             </nav>
         </div>
@@ -175,9 +176,18 @@
         <header class="h-20 flex items-center justify-between px-4 md:px-8 border-b border-white/10 bg-slate-900/40 backdrop-blur-md">
             <div class="flex items-center gap-3">
                 <button onclick="toggleSidebar()" class="md:hidden p-2.5 text-white hover:bg-white/10 rounded-xl"><i class="fas fa-bars text-xl"></i></button>
-                <div class="hidden md:block"><h2 class="text-2xl font-extrabold bg-gradient-to-r from-white to-slate-300 bg-clip-text text-transparent">Overview</h2><p class="text-slate-400 text-xs">Welcome back, <span class="text-indigo-400 font-semibold"><?= $user->username ?? 'User' ?></span></p></div>
+                <div class="hidden md:block">
+                    <h2 class="text-2xl font-extrabold bg-gradient-to-r from-white to-slate-300 bg-clip-text text-transparent" data-text="// OVERVIEW" style="font-family:'Orbitron',sans-serif">// OVERVIEW</h2>
+                    <p class="text-slate-400 text-xs" style="font-family:'Share Tech Mono',monospace">&gt; OPERATOR: <span class="text-indigo-400 font-semibold uppercase tracking-widest"><?= $user->username ?? 'User' ?></span> // SESSION ACTIVE</p>
+                </div>
             </div>
-            <div class="glass-panel px-5 py-2 rounded-xl flex items-center gap-3"><div class="w-9 h-9 rounded-xl bg-amber-500/15 flex items-center justify-center text-amber-400"><i class="fas fa-coins"></i></div><div><p class="text-[9px] text-slate-400 uppercase font-black">Balance</p><p class="text-white font-mono font-bold">$<?= isset($user->saldo) ? number_format($user->saldo, 2) : '0.00' ?></p></div></div>
+            <div class="glass-panel px-5 py-2 rounded flex items-center gap-3">
+                <div class="w-9 h-9 rounded bg-amber-500/15 flex items-center justify-center text-amber-400"><i class="fas fa-coins"></i></div>
+                <div>
+                    <p class="text-[9px] text-slate-400 uppercase font-black tracking-widest" style="font-family:'Share Tech Mono',monospace">// CREDIT_BAL</p>
+                    <p class="text-white font-bold" style="font-family:'Share Tech Mono',monospace">$<?= isset($user->saldo) ? number_format($user->saldo, 2) : '0.00' ?></p>
+                </div>
+            </div>
         </header>
 
         <div class="flex-1 overflow-y-auto p-4 md:p-8">
@@ -189,12 +199,30 @@
                 <div class="bg-emerald-500/10 border border-emerald-500/20 text-emerald-300 px-5 py-3.5 rounded-xl mb-6 text-sm flex items-center gap-3 animate-fade-in"><i class="fas fa-check-circle"></i><?= session()->getFlashdata('msgSuccess') ?></div>
             <?php endif; ?>
 
-            <!-- Stats Grid -->
+            <!-- HUD Stats Grid -->
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                <div class="glass-panel p-6 rounded-2xl stat-card"><p class="text-xs text-slate-400 uppercase font-bold">Total Licenses</p><h3 class="text-3xl font-bold text-white my-4"><?= $stats['total_keys'] ?? 0 ?></h3><div class="text-xs text-slate-400"><i class="fas fa-database mr-2"></i>All time</div></div>
-                <div class="glass-panel p-6 rounded-2xl stat-card"><p class="text-xs text-slate-400 uppercase font-bold">Active Keys</p><h3 class="text-3xl font-bold text-white my-4"><?= $stats['active_keys'] ?? 0 ?></h3><div class="text-xs text-emerald-400"><i class="fas fa-check-circle mr-2"></i>Running</div></div>
-                <div class="glass-panel p-6 rounded-2xl stat-card"><p class="text-xs text-slate-400 uppercase font-bold">Unused Stock</p><h3 class="text-3xl font-bold text-white my-4"><?= $stats['unused_keys'] ?? 0 ?></h3><div class="text-xs text-blue-400"><i class="fas fa-archive mr-2"></i>Ready</div></div>
-                <div class="p-6 rounded-2xl bg-gradient-to-br from-indigo-600 to-purple-700 cursor-pointer hover:shadow-xl transition" onclick="window.location.href='<?= site_url('keys/generate') ?>'"><div class="flex flex-col"><div class="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center mb-3"><i class="fas fa-bolt text-white"></i></div><h3 class="text-xl font-bold text-white">Generate Keys</h3><p class="text-indigo-100 text-xs">Create licenses</p></div></div>
+                <div class="glass-panel p-6 rounded stat-card">
+                    <p class="text-xs text-slate-400 uppercase font-bold tracking-widest" style="font-family:'Share Tech Mono',monospace">// LIC_TOTAL</p>
+                    <h3 class="text-4xl font-bold text-white my-4" style="font-family:'Share Tech Mono',monospace"><?= str_pad($stats['total_keys'] ?? 0, 4, '0', STR_PAD_LEFT) ?></h3>
+                    <div class="text-xs text-slate-400" style="font-family:'Share Tech Mono',monospace"><i class="fas fa-database mr-2"></i>&gt; ALL TIME</div>
+                </div>
+                <div class="glass-panel p-6 rounded stat-card">
+                    <p class="text-xs text-slate-400 uppercase font-bold tracking-widest" style="font-family:'Share Tech Mono',monospace">// LIC_ACTIVE</p>
+                    <h3 class="text-4xl font-bold text-white my-4" style="font-family:'Share Tech Mono',monospace"><?= str_pad($stats['active_keys'] ?? 0, 4, '0', STR_PAD_LEFT) ?></h3>
+                    <div class="text-xs text-emerald-400" style="font-family:'Share Tech Mono',monospace"><i class="fas fa-check-circle mr-2"></i>&gt; RUNNING</div>
+                </div>
+                <div class="glass-panel p-6 rounded stat-card">
+                    <p class="text-xs text-slate-400 uppercase font-bold tracking-widest" style="font-family:'Share Tech Mono',monospace">// STOCK_READY</p>
+                    <h3 class="text-4xl font-bold text-white my-4" style="font-family:'Share Tech Mono',monospace"><?= str_pad($stats['unused_keys'] ?? 0, 4, '0', STR_PAD_LEFT) ?></h3>
+                    <div class="text-xs text-blue-400" style="font-family:'Share Tech Mono',monospace"><i class="fas fa-archive mr-2"></i>&gt; AVAILABLE</div>
+                </div>
+                <div class="p-6 rounded cursor-pointer hover:shadow-xl transition glass-panel" onclick="window.location.href='<?= site_url('keys/generate') ?>'" style="background:linear-gradient(135deg,rgba(0,245,255,.15),rgba(255,43,214,.15))">
+                    <div class="flex flex-col">
+                        <div class="w-10 h-10 rounded flex items-center justify-center mb-3" style="background:rgba(0,245,255,.2);border:1px solid rgba(0,245,255,.5)"><i class="fas fa-bolt text-white"></i></div>
+                        <h3 class="text-xl font-bold text-white" style="font-family:'Orbitron',sans-serif">⚡ GENERATE</h3>
+                        <p class="text-indigo-100 text-xs" style="font-family:'Share Tech Mono',monospace">&gt; FORGE NEW KEYS</p>
+                    </div>
+                </div>
             </div>
 
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
