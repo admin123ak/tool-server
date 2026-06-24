@@ -239,8 +239,8 @@
                 </button>
                 
                 <div class="hidden md:block">
-                    <h2 class="text-2xl font-bold text-white">License Manager</h2>
-                    <p class="text-slate-400 text-xs mt-1">Manage & monitor keys</p>
+                    <h2 class="text-2xl font-bold text-white" data-text="// KEY.VAULT" style="font-family:'Orbitron',sans-serif">// KEY.VAULT</h2>
+                    <p class="text-slate-400 text-xs mt-1" style="font-family:'Share Tech Mono',monospace">&gt; Manage &amp; monitor encrypted licenses</p>
                 </div>
             </div>
             

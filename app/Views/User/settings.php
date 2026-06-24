@@ -196,7 +196,7 @@ if (!session()->has('userid')) {
                 <button onclick="toggleSidebar()" class="md:hidden p-2.5 text-white hover:bg-white/10 rounded-xl transition-all duration-200">
                     <i class="fas fa-bars text-xl"></i>
                 </button>
-                <h2 class="text-2xl font-extrabold tracking-tight bg-gradient-to-r from-white to-slate-300 bg-clip-text text-transparent">Account Settings</h2>
+                <h2 class="text-2xl font-extrabold tracking-tight bg-gradient-to-r from-white to-slate-300 bg-clip-text text-transparent" data-text="// SYSTEM.CONFIG" style="font-family:'Orbitron',sans-serif">// SYSTEM.CONFIG</h2>
             </div>
             
             <!-- FIXED: Balance card made smaller - reduced padding, icon size, and text size -->
