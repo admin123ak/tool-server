@@ -1,370 +1,405 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>SX2 LADOR | Premium License Management</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title><?= BASE_NAME ?? 'SX2.LADOR' ?> // MAINFRAME</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<?= link_tag('assets/css/cyberpunk.css') ?>
+<style>
+  body{ background:#03040a; color:#cfe7ee; font-family:'Share Tech Mono',monospace; overflow-x:hidden; }
+  /* Background layers */
+  .bg-grid{ position:fixed; inset:0; z-index:0;
+    background:
+      linear-gradient(rgba(0,245,255,.04) 1px,transparent 1px) 0 0/60px 60px,
+      linear-gradient(90deg,rgba(0,245,255,.04) 1px,transparent 1px) 0 0/60px 60px,
+      radial-gradient(ellipse at 20% 30%, rgba(0,245,255,.12), transparent 60%),
+      radial-gradient(ellipse at 80% 70%, rgba(255,43,214,.10), transparent 60%);
+  }
+  .bg-3d{ position:fixed; bottom:-20vh; left:-10%; right:-10%; height:80vh; z-index:0; pointer-events:none;
+    background:
+      repeating-linear-gradient(90deg, rgba(0,245,255,.4) 0 1px, transparent 1px 80px),
+      repeating-linear-gradient(0deg, rgba(0,245,255,.4) 0 1px, transparent 1px 80px);
+    transform: perspective(800px) rotateX(65deg);
+    mask-image: linear-gradient(to top, #000, transparent 80%);
+  }
+  .scan{ position:fixed; inset:0; pointer-events:none; z-index:1;
+    background: repeating-linear-gradient(0deg, rgba(0,245,255,.025) 0 2px, transparent 2px 4px);
+  }
 
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
+  /* TOP STATUS BAR */
+  .top-bar{
+    position:relative; z-index:10;
+    display:flex; justify-content:space-between; align-items:center;
+    padding:12px 32px; background:rgba(0,8,16,.9); border-bottom:1px solid rgba(0,245,255,.3);
+    font:11px 'Share Tech Mono',monospace; letter-spacing:.2em; color:#7fb3c2;
+  }
+  .top-bar .live{ display:flex; gap:24px; align-items:center; }
+  .top-bar .dot{ display:inline-block; width:6px; height:6px; border-radius:50%; background:var(--cy-green,#39ff14); box-shadow:0 0 8px var(--cy-green,#39ff14); animation: bk 1.2s infinite; margin-right:6px; }
+  @keyframes bk{ 50%{opacity:.3} }
 
-    <!-- Font Awesome -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" rel="stylesheet" crossorigin="anonymous">
+  /* HERO LAYOUT — 2/3 + 1/3 NOT symmetric */
+  .hero{
+    position:relative; z-index:5;
+    display:grid; grid-template-columns: 1.7fr 1fr; gap:24px;
+    padding:48px 32px; min-height: calc(100vh - 50px);
+    align-items:start;
+  }
 
-    <!-- Google Fonts: Inter & Space Grotesk -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  /* LEFT: BOOT TERMINAL + giant title */
+  .hero-left{ position:relative; }
+  .boot-screen{
+    background:rgba(0,0,0,.6); border:1px solid rgba(0,245,255,.25); padding:18px 22px;
+    margin-bottom:32px;
+    font:13px/1.85 'Share Tech Mono',monospace;
+    box-shadow: inset 0 0 30px rgba(0,245,255,.06);
+    position:relative; overflow:hidden;
+  }
+  .boot-screen::before{
+    content:""; position:absolute; left:0; right:0; height:2px;
+    background:linear-gradient(90deg, transparent, var(--cy-cyan,#00f5ff), transparent);
+    animation: scan 4s linear infinite;
+  }
+  @keyframes scan{ from{top:-2px} to{top:100%} }
+  .boot-screen .head{
+    display:flex; align-items:center; justify-content:space-between;
+    border-bottom:1px dashed rgba(0,245,255,.3); padding-bottom:8px; margin-bottom:10px;
+    font:10px 'Share Tech Mono',monospace; color:var(--cy-cyan,#00f5ff); letter-spacing:.25em;
+  }
+  .boot-screen .dots{ display:flex; gap:6px; }
+  .boot-screen .dots span{ width:10px; height:10px; border-radius:50%; }
+  .boot-screen .dots span:nth-child(1){ background:var(--cy-magenta,#ff2bd6); box-shadow:0 0 6px var(--cy-magenta,#ff2bd6); }
+  .boot-screen .dots span:nth-child(2){ background:#ffb800; box-shadow:0 0 6px #ffb800; }
+  .boot-screen .dots span:nth-child(3){ background:var(--cy-green,#39ff14); box-shadow:0 0 6px var(--cy-green,#39ff14); }
+  .boot-screen .ln{ opacity:0; animation: bshow .25s forwards; }
+  @keyframes bshow{ to{opacity:1} }
+  .boot-screen .gn{ color:var(--cy-green,#39ff14); }
+  .boot-screen .cy{ color:var(--cy-cyan,#00f5ff); }
+  .boot-screen .mg{ color:var(--cy-magenta,#ff2bd6); }
+  .boot-screen .am{ color:#ffb800; }
+  .boot-screen .ok{ background:var(--cy-green,#39ff14); color:#000; padding:0 6px; }
 
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
-                        display: ['Space Grotesk', 'monospace'],
-                    },
-                    colors: {
-                        accent: {
-                            DEFAULT: '#6366f1',
-                            hover: '#4f46e5',
-                            light: '#a5b4fc',
-                        },
-                    },
-                    animation: {
-                        'float': 'float 6s ease-in-out infinite',
-                        'glow-pulse': 'glowPulse 3s ease-in-out infinite',
-                    },
-                    keyframes: {
-                        float: {
-                            '0%, 100%': { transform: 'translateY(0px)' },
-                            '50%': { transform: 'translateY(-8px)' },
-                        },
-                        glowPulse: {
-                            '0%, 100%': { boxShadow: '0 0 20px rgba(99, 102, 241, 0.2)' },
-                            '50%': { boxShadow: '0 0 35px rgba(99, 102, 241, 0.35)' },
-                        }
-                    }
-                }
-            }
-        }
-    </script>
+  /* GIANT TITLE */
+  .giant{
+    font:900 80px/1 'Orbitron',sans-serif;
+    letter-spacing:-.02em; margin:24px 0;
+    position:relative;
+  }
+  .giant .l1{ display:block;
+    background:linear-gradient(90deg,#fff 0%,var(--cy-cyan,#00f5ff) 100%);
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+    text-shadow: 0 0 40px rgba(0,245,255,.4);
+  }
+  .giant .l2{ display:block;
+    background:linear-gradient(90deg,var(--cy-magenta,#ff2bd6),var(--cy-cyan,#00f5ff));
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+    position:relative;
+  }
+  .giant .l2::after{
+    content:attr(data-text); position:absolute; left:3px; top:0;
+    background:linear-gradient(90deg,var(--cy-magenta,#ff2bd6),#fff);
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+    mix-blend-mode:screen; opacity:.55; clip-path: inset(50% 0 30% 0);
+    animation: gl 3s infinite linear alternate;
+  }
+  @keyframes gl{
+    0%{clip-path:inset(40% 0 50% 0); transform:translate(0,0)}
+    25%{clip-path:inset(10% 0 80% 0); transform:translate(-2px,0)}
+    50%{clip-path:inset(70% 0 10% 0); transform:translate(2px,0)}
+    75%{clip-path:inset(35% 0 55% 0); transform:translate(-1px,0)}
+    100%{clip-path:inset(45% 0 45% 0); transform:translate(1px,0)}
+  }
+  .tagline{
+    font:14px/1.6 'Share Tech Mono',monospace; color:#cfe7ee;
+    max-width: 560px; margin-bottom:32px; letter-spacing:.05em;
+    padding-left:14px; border-left:3px solid var(--cy-cyan,#00f5ff);
+  }
+  .tagline span{ color:var(--cy-magenta,#ff2bd6); }
 
-    <style>
-        /* smooth scroll behavior */
-        html {
-            scroll-behavior: smooth;
-        }
-        
-        body {
-            background: linear-gradient(145deg, #0a0f1e 0%, #0c1222 100%);
-            color: #eef2ff;
-            font-family: 'Inter', sans-serif;
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
-        }
+  /* CTA buttons */
+  .cta-row{ display:flex; gap:14px; flex-wrap:wrap; margin-bottom:36px; }
+  .cta{
+    padding:16px 32px; font:900 13px 'Orbitron',sans-serif; letter-spacing:.2em;
+    text-decoration:none; cursor:pointer; transition: all .2s;
+    display:inline-flex; align-items:center; gap:10px;
+    clip-path: polygon(14px 0, 100% 0, calc(100% - 14px) 100%, 0 100%);
+  }
+  .cta.primary{
+    background:linear-gradient(135deg, var(--cy-cyan,#00f5ff), var(--cy-magenta,#ff2bd6));
+    color:#000; box-shadow:0 0 24px rgba(0,245,255,.4);
+  }
+  .cta.primary:hover{ filter:brightness(1.1); box-shadow:0 0 40px var(--cy-cyan,#00f5ff); }
+  .cta.ghost{
+    background:transparent; color:var(--cy-cyan,#00f5ff);
+    border:1px solid var(--cy-cyan,#00f5ff); padding:15px 32px;
+    box-shadow: inset 0 0 12px rgba(0,245,255,.1);
+  }
+  .cta.ghost:hover{ background:rgba(0,245,255,.1); }
 
-        /* Soft noise texture for depth (optional, eye-friendly) */
-        body::before {
-            content: "";
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-image: radial-gradient(rgba(99, 102, 241, 0.04) 1px, transparent 1px);
-            background-size: 28px 28px;
-            pointer-events: none;
-            z-index: 0;
-        }
+  /* RIGHT: STATS CARD + DIAGRAM */
+  .hero-right{
+    background:rgba(0,8,16,.7); border:1px solid rgba(0,245,255,.25);
+    padding:24px; position:relative;
+    box-shadow: 0 0 30px rgba(0,245,255,.08), inset 0 0 0 1px rgba(0,245,255,.05);
+  }
+  .hero-right::before, .hero-right::after{
+    content:""; position:absolute; width:20px; height:20px;
+    border:2px solid var(--cy-cyan,#00f5ff);
+    filter: drop-shadow(0 0 4px var(--cy-cyan,#00f5ff));
+  }
+  .hero-right::before{ left:-2px; top:-2px; border-right:0; border-bottom:0; }
+  .hero-right::after{ right:-2px; bottom:-2px; border-left:0; border-top:0;
+    border-color: var(--cy-magenta,#ff2bd6); filter: drop-shadow(0 0 4px var(--cy-magenta,#ff2bd6));
+  }
+  .panel-title{
+    font:700 11px 'Share Tech Mono',monospace; letter-spacing:.25em;
+    color:var(--cy-cyan,#00f5ff); padding-bottom:10px;
+    border-bottom:1px dashed rgba(0,245,255,.3); margin-bottom:16px;
+    display:flex; justify-content:space-between;
+  }
+  .panel-title .x{ color:#7fb3c2; }
 
-        /* Improved glass card — smooth and readable */
-        .glass-card {
-            background: rgba(18, 25, 45, 0.7);
-            backdrop-filter: blur(16px);
-            border: 1px solid rgba(99, 102, 241, 0.2);
-            transition: all 0.3s ease-in-out;
-        }
-        
-        /* Hero gradient softer to eyes */
-        .hero-gradient {
-            background: radial-gradient(ellipse 70% 50% at 50% 40%, rgba(99, 102, 241, 0.1) 0%, transparent 60%),
-                        radial-gradient(ellipse at bottom left, rgba(139, 92, 246, 0.06) 0%, transparent 55%);
-        }
+  /* Big counter */
+  .big-stat{ text-align:center; margin-bottom:18px; }
+  .big-stat .n{
+    font:900 60px 'Share Tech Mono',monospace; line-height:1;
+    background:linear-gradient(180deg, var(--cy-cyan,#00f5ff), var(--cy-magenta,#ff2bd6));
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+    text-shadow:0 0 30px rgba(0,245,255,.4);
+  }
+  .big-stat .l{ font:10px 'Share Tech Mono',monospace; color:#7fb3c2; letter-spacing:.3em; margin-top:4px; }
 
-        /* Premium glow button — softer glow, not harsh */
-        .glow-btn {
-            background: linear-gradient(105deg, #4f46e5 0%, #7c3aed 100%);
-            box-shadow: 0 6px 18px rgba(79, 70, 229, 0.2);
-            transition: all 0.35s cubic-bezier(0.2, 0.9, 0.4, 1.1);
-            border: none;
-        }
+  /* Mini stats grid */
+  .mini-grid{
+    display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:20px;
+  }
+  .mini-stat{
+    border:1px solid rgba(0,245,255,.2); padding:10px;
+    background:rgba(0,245,255,.04); position:relative;
+  }
+  .mini-stat .n{ font:900 22px 'Share Tech Mono',monospace; color:var(--cy-cyan,#00f5ff); }
+  .mini-stat.mg .n{ color:var(--cy-magenta,#ff2bd6); }
+  .mini-stat.gn .n{ color:var(--cy-green,#39ff14); }
+  .mini-stat.am .n{ color:#ffb800; }
+  .mini-stat .l{ font:9px 'Share Tech Mono',monospace; color:#7fb3c2; letter-spacing:.2em; margin-top:2px; }
 
-        .glow-btn:hover {
-            box-shadow: 0 10px 28px rgba(99, 102, 241, 0.3);
-            transform: translateY(-2px) scale(1.01);
-        }
+  /* SYSTEM diagram */
+  .sys-diag{
+    border:1px solid rgba(0,245,255,.2); padding:14px; background:rgba(0,0,0,.4);
+    font:11px/1.9 'Share Tech Mono',monospace;
+  }
+  .sys-diag .node{ display:flex; align-items:center; gap:8px; }
+  .sys-diag .node .b{ width:8px; height:8px; border-radius:50%; }
+  .sys-diag .node.up .b{ background:var(--cy-green,#39ff14); box-shadow:0 0 6px var(--cy-green,#39ff14); }
+  .sys-diag .node.wn .b{ background:#ffb800; box-shadow:0 0 6px #ffb800; animation: bk 1.5s infinite; }
+  .sys-diag .arrow{ color:#3a5d68; margin-left:14px; }
 
-        /* secondary button with smoothness */
-        .secondary-btn {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(99, 102, 241, 0.25);
-            transition: all 0.35s cubic-bezier(0.2, 0.9, 0.4, 1.1);
-        }
+  /* FEATURE BLOCKS */
+  .features{
+    position:relative; z-index:5; padding:64px 32px 32px;
+    display:grid; grid-template-columns: repeat(4, 1fr); gap:18px;
+  }
+  .feat{
+    background:rgba(0,8,16,.7); border:1px solid rgba(0,245,255,.2);
+    padding:24px 20px; position:relative; transition: all .3s;
+    clip-path: polygon(0 0, 100% 0, 100% calc(100% - 18px), calc(100% - 18px) 100%, 0 100%);
+  }
+  .feat:hover{
+    border-color:var(--cy-cyan,#00f5ff);
+    background:rgba(0,245,255,.06);
+    transform:translateY(-4px); box-shadow:0 8px 30px rgba(0,245,255,.15);
+  }
+  .feat .ico{
+    width:48px; height:48px; display:flex; align-items:center; justify-content:center;
+    background:linear-gradient(135deg, var(--cy-cyan,#00f5ff), var(--cy-magenta,#ff2bd6));
+    color:#000; margin-bottom:14px;
+    clip-path: polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%);
+  }
+  .feat h3{ font:700 16px 'Orbitron',sans-serif; color:#fff; margin-bottom:6px; letter-spacing:.05em; }
+  .feat .id{ font:9px 'Share Tech Mono',monospace; color:var(--cy-cyan,#00f5ff); letter-spacing:.3em; margin-bottom:8px; }
+  .feat p{ font:12px/1.6 'Share Tech Mono',monospace; color:#7fb3c2; }
 
-        .secondary-btn:hover {
-            background: rgba(99, 102, 241, 0.2);
-            border-color: rgba(99, 102, 241, 0.5);
-            transform: translateY(-2px);
-        }
+  /* FOOTER LINE */
+  .footer-line{
+    position:relative; z-index:5; padding:24px 32px;
+    border-top:1px solid rgba(0,245,255,.2);
+    background:rgba(0,8,16,.8);
+    font:10px 'Share Tech Mono',monospace; color:#3a5d68;
+    text-align:center; letter-spacing:.3em;
+  }
+  .footer-line .x{ color:var(--cy-cyan,#00f5ff); }
 
-        /* Feature card — premium yet soft on eyes */
-        .feature-card {
-            background: rgba(15, 23, 42, 0.55);
-            backdrop-filter: blur(8px);
-            border: 1px solid rgba(99, 102, 241, 0.12);
-            transition: all 0.35s cubic-bezier(0.2, 0.9, 0.4, 1.2);
-        }
-
-        .feature-card:hover {
-            background: rgba(30, 41, 59, 0.65);
-            border-color: rgba(99, 102, 241, 0.35);
-            transform: translateY(-5px);
-            box-shadow: 0 20px 30px -12px rgba(0, 0, 0, 0.4);
-        }
-
-        /* Stat card elegant */
-        .stat-card {
-            background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(139, 92, 246, 0.05) 100%);
-            border: 1px solid rgba(99, 102, 241, 0.18);
-            backdrop-filter: blur(4px);
-            transition: all 0.3s ease;
-        }
-        
-        .stat-card:hover {
-            transform: translateY(-3px);
-            border-color: rgba(99, 102, 241, 0.4);
-            background: linear-gradient(135deg, rgba(99, 102, 241, 0.15) 0%, rgba(139, 92, 246, 0.09) 100%);
-        }
-
-        /* custom scrollbar soft */
-        ::-webkit-scrollbar {
-            width: 5px;
-        }
-        ::-webkit-scrollbar-track {
-            background: #0f172a;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #4f46e5;
-            border-radius: 12px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #818cf8;
-        }
-
-        /* text selection soft */
-        ::selection {
-            background: rgba(99, 102, 241, 0.4);
-            color: white;
-        }
-    </style>
+  /* Responsive */
+  @media (max-width: 1024px){
+    .hero{ grid-template-columns: 1fr; }
+    .giant{ font-size: 56px; }
+    .features{ grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (max-width: 600px){
+    .giant{ font-size: 38px; }
+    .features{ grid-template-columns: 1fr; }
+    .top-bar{ font-size:9px; padding:10px 14px; }
+    .top-bar .live{ gap:10px; }
+  }
+</style>
 </head>
-<body class="min-h-screen overflow-x-hidden flex flex-col relative">
+<body>
 
-    <!-- Navigation -->
-    <nav class="fixed top-0 left-0 right-0 z-50 glass-card border-b border-white/5">
-        <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-            <a href="#" class="flex items-center gap-3 group transition-all duration-300">
-                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-md transition-transform group-hover:scale-105">
-                    <i class="fas fa-bolt text-white text-lg"></i>
-                </div>
-                <span class="text-xl font-bold tracking-tight bg-gradient-to-r from-white to-slate-300 bg-clip-text text-transparent">SX2 LADOR</span>
-            </a>
-            <div class="flex items-center gap-4">
-                <a href="<?= base_url('login') ?>" class="glow-btn px-5 py-2.5 rounded-xl text-sm font-semibold text-white tracking-wide flex items-center gap-2 transition-all">
-                    <i class="fas fa-arrow-right-to-bracket text-xs"></i> Login
-                </a>
-            </div>
-        </div>
-    </nav>
+<div class="bg-grid"></div>
+<div class="bg-3d"></div>
+<div class="scan"></div>
 
-    <!-- Hero Section -->
-    <section class="hero-gradient min-h-screen flex items-center justify-center pt-24 pb-20 px-6 relative">
-        <div class="max-w-6xl mx-auto text-center relative z-10">
-            <!-- Cyberpunk status chip -->
-            <div class="inline-flex items-center gap-3 px-5 py-2 rounded glass-card mb-10" style="font-family:'Share Tech Mono',monospace;letter-spacing:.12em">
-                <span class="relative flex h-2.5 w-2.5">
-                    <span class="animate-ping absolute h-full w-full rounded-full bg-emerald-400 opacity-70"></span>
-                    <span class="rounded-full h-2.5 w-2.5 bg-emerald-500 shadow-sm"></span>
-                </span>
-                <span class="text-xs font-semibold text-emerald-400 uppercase">[ NODE_01 :: ONLINE ] // UPTIME 99.97%</span>
-            </div>
+<!-- TOP STATUS BAR -->
+<div class="top-bar">
+  <div class="live">
+    <span><span class="dot"></span>MAINFRAME // ONLINE</span>
+    <span>NODE.01 :: ASIA-PACIFIC</span>
+    <span id="clock">--:--:--</span>
+  </div>
+  <div class="live">
+    <span style="color:var(--cy-cyan,#00f5ff)"><a href="<?= base_url('login') ?>" style="color:inherit;text-decoration:none">[ ENTER PANEL ▸ ]</a></span>
+  </div>
+</div>
 
-            <!-- Glitch heading (data-text bật hiệu ứng glitch trong cyberpunk.css) -->
-            <h1 class="text-5xl md:text-7xl lg:text-8xl font-black mb-8 leading-[1.1] tracking-tight"
-                data-text="LICENSE //"
-                style="font-family:'Orbitron',sans-serif">
-                <span class="bg-gradient-to-r from-white via-gray-100 to-slate-300 bg-clip-text text-transparent">LICENSE //</span>
-                <br>
-                <span class="bg-gradient-to-r from-indigo-300 via-purple-300 to-pink-300 bg-clip-text text-transparent">CONTROL_GRID</span>
-            </h1>
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-left">
 
-            <p class="text-lg md:text-xl text-slate-300 max-w-2xl mx-auto mb-12 leading-relaxed font-medium"
-               style="font-family:'Share Tech Mono',monospace">
-                &gt; Encrypted key vault. Realtime loader pipeline. Zero-trust auth.
-                <span class="block text-slate-400 text-base mt-2">&gt; Built for games &amp; software protection. 24/7 uplink.</span>
-            </p>
+    <!-- BOOT terminal -->
+    <div class="boot-screen">
+      <div class="head">
+        <span>// sys.boot v2.6 -- last login: <?= date('Y-m-d H:i') ?> from MAINFRAME.01</span>
+        <div class="dots"><span></span><span></span><span></span></div>
+      </div>
+      <div id="bootlog"></div>
+    </div>
 
-            <!-- CTA Buttons -->
-            <div class="flex flex-col sm:flex-row items-center justify-center gap-5 mb-20">
-                <a href="<?= base_url('login') ?>" class="glow-btn px-8 py-4 rounded text-lg font-bold flex items-center gap-3 w-full sm:w-auto justify-center transition-all group">
-                    <i class="fas fa-terminal group-hover:translate-x-1 transition-transform"></i>
-                    ENTER PANEL ▸
-                </a>
-                <a href="<?= base_url('Getkey.php') ?>" class="secondary-btn px-8 py-4 rounded text-lg font-semibold flex items-center gap-3 w-full sm:w-auto justify-center transition-all group">
-                    <i class="fas fa-key group-hover:scale-110 transition-transform"></i>
-                    GET_FREE_KEY
-                </a>
-            </div>
+    <!-- HERO TITLE -->
+    <h1 class="giant">
+      <span class="l1">// LICENSE</span>
+      <span class="l2" data-text="CONTROL_GRID">CONTROL_GRID</span>
+    </h1>
 
-            <!-- Stats - HUD style -->
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-5 max-w-4xl mx-auto">
-                <div class="stat-card p-5 rounded text-center">
-                    <div class="text-xs text-slate-400 uppercase tracking-widest mb-2" style="font-family:'Share Tech Mono',monospace">// LIC_TOTAL</div>
-                    <div class="text-4xl font-black bg-gradient-to-r from-indigo-400 to-indigo-300 bg-clip-text text-transparent">0043</div>
-                </div>
-                <div class="stat-card p-5 rounded text-center">
-                    <div class="text-xs text-slate-400 uppercase tracking-widest mb-2" style="font-family:'Share Tech Mono',monospace">// USR_ACTIVE</div>
-                    <div class="text-4xl font-black bg-gradient-to-r from-purple-400 to-purple-300 bg-clip-text text-transparent">0013</div>
-                </div>
-                <div class="stat-card p-5 rounded text-center">
-                    <div class="text-xs text-slate-400 uppercase tracking-widest mb-2" style="font-family:'Share Tech Mono',monospace">// GAME_NODES</div>
-                    <div class="text-4xl font-black bg-gradient-to-r from-pink-400 to-rose-300 bg-clip-text text-transparent">005</div>
-                </div>
-                <div class="stat-card p-5 rounded text-center">
-                    <div class="text-xs text-slate-400 uppercase tracking-widest mb-2" style="font-family:'Share Tech Mono',monospace">// UPTIME</div>
-                    <div class="text-4xl font-black bg-gradient-to-r from-emerald-400 to-emerald-300 bg-clip-text text-transparent">99.9</div>
-                </div>
-            </div>
-        </div>
-        
-        <!-- subtle background elements without harshness -->
-        <div class="absolute bottom-0 left-0 w-80 h-80 bg-indigo-500/10 rounded-full blur-3xl -z-0"></div>
-        <div class="absolute top-40 right-0 w-72 h-72 bg-purple-500/10 rounded-full blur-3xl -z-0"></div>
-    </section>
+    <p class="tagline">
+      &gt; Encrypted key vault. Realtime loader pipeline. <span>Zero-trust</span> auth.<br>
+      &gt; Built for <span>games &amp; software</span> protection. 24/7 uplink. <span>99.97%</span> SLA.
+    </p>
 
-    <!-- Features Section -->
-    <section class="py-24 px-6 relative">
-        <div class="max-w-6xl mx-auto">
-            <div class="text-center mb-16">
-                <div class="inline-block px-4 py-1.5 rounded-full bg-indigo-500/10 text-indigo-300 text-xs font-semibold tracking-wide mb-5 border border-indigo-500/20">
-                    CORE FEATURES
-                </div>
-                <h2 class="text-4xl md:text-5xl font-bold mb-5 text-white tracking-tight">Why Choose SX2 LADOR</h2>
-                <p class="text-slate-300 text-lg max-w-2xl mx-auto">Everything you need to manage your license keys in one powerful ecosystem.</p>
-            </div>
+    <div class="cta-row">
+      <a href="<?= base_url('login') ?>" class="cta primary">
+        <i class="fas fa-terminal"></i> ENGAGE LINK
+      </a>
+      <a href="<?= base_url('Getkey.php') ?>" class="cta ghost">
+        <i class="fas fa-key"></i> FREE_KEY
+      </a>
+      <a href="<?= base_url('register') ?>" class="cta ghost">
+        <i class="fas fa-user-plus"></i> SIGNUP
+      </a>
+    </div>
+  </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-7">
-                <!-- feature cards with eye-friendly text colors -->
-                <div class="feature-card p-7 rounded-2xl transition-all duration-300">
-                    <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-indigo-500/20 to-purple-500/20 flex items-center justify-center mb-5 shadow-sm">
-                        <i class="fas fa-bolt text-2xl text-indigo-300"></i>
-                    </div>
-                    <h3 class="text-xl font-bold mb-3 text-white">Instant Generation</h3>
-                    <p class="text-slate-300 text-sm leading-relaxed">Generate hundreds of unique license keys in seconds with custom prefixes and flexible durations.</p>
-                </div>
+  <!-- RIGHT PANEL: stats card -->
+  <aside class="hero-right">
+    <div class="panel-title">// SYS.STATUS<span class="x">REAL-TIME</span></div>
 
-                <div class="feature-card p-7 rounded-2xl transition-all duration-300">
-                    <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-emerald-500/20 to-teal-500/20 flex items-center justify-center mb-5 shadow-sm">
-                        <i class="fas fa-shield-alt text-2xl text-emerald-300"></i>
-                    </div>
-                    <h3 class="text-xl font-bold mb-3 text-white">HWID Protection</h3>
-                    <p class="text-slate-300 text-sm leading-relaxed">Advanced hardware ID binding ensures each license is securely tied to specific devices.</p>
-                </div>
+    <div class="big-stat">
+      <div class="n">99.97%</div>
+      <div class="l">UPLINK STABILITY</div>
+    </div>
 
-                <div class="feature-card p-7 rounded-2xl transition-all duration-300">
-                    <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-amber-500/20 to-orange-500/20 flex items-center justify-center mb-5 shadow-sm">
-                        <i class="fas fa-chart-line text-2xl text-amber-300"></i>
-                    </div>
-                    <h3 class="text-xl font-bold mb-3 text-white">Real-time Analytics</h3>
-                    <p class="text-slate-300 text-sm leading-relaxed">Monitor API traffic, login activity, and key usage with intuitive live dashboards.</p>
-                </div>
+    <div class="mini-grid">
+      <div class="mini-stat"><div class="n">0043</div><div class="l">LIC_TOTAL</div></div>
+      <div class="mini-stat mg"><div class="n">0013</div><div class="l">USR_ACTIVE</div></div>
+      <div class="mini-stat gn"><div class="n">005</div><div class="l">GAME_NODES</div></div>
+      <div class="mini-stat am"><div class="n">8421</div><div class="l">THREATS_BLK</div></div>
+    </div>
 
-                <div class="feature-card p-7 rounded-2xl transition-all duration-300">
-                    <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-pink-500/20 to-rose-500/20 flex items-center justify-center mb-5 shadow-sm">
-                        <i class="fas fa-users text-2xl text-pink-300"></i>
-                    </div>
-                    <h3 class="text-xl font-bold mb-3 text-white">Multi-Role System</h3>
-                    <p class="text-slate-300 text-sm leading-relaxed">Owner, Admin, and Reseller roles with granular permission controls and logs.</p>
-                </div>
+    <div class="panel-title" style="margin-top:6px">// NODE.MAP<span class="x">5 zones</span></div>
+    <div class="sys-diag">
+      <div class="node up"><span class="b"></span> NODE.01 ASIA-PAC <span class="arrow">▸ 12ms</span></div>
+      <div class="node up"><span class="b"></span> NODE.02 EU-WEST <span class="arrow">▸ 89ms</span></div>
+      <div class="node up"><span class="b"></span> NODE.03 US-EAST <span class="arrow">▸ 145ms</span></div>
+      <div class="node wn"><span class="b"></span> NODE.04 SA-NORTH <span class="arrow">▸ 210ms</span></div>
+      <div class="node up"><span class="b"></span> NODE.05 AU-EAST <span class="arrow">▸ 67ms</span></div>
+    </div>
+  </aside>
+</section>
 
-                <div class="feature-card p-7 rounded-2xl transition-all duration-300">
-                    <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-blue-500/20 to-cyan-500/20 flex items-center justify-center mb-5 shadow-sm">
-                        <i class="fas fa-gamepad text-2xl text-blue-300"></i>
-                    </div>
-                    <h3 class="text-xl font-bold mb-3 text-white">Multi-Game Support</h3>
-                    <p class="text-slate-300 text-sm leading-relaxed">Manage licenses for multiple games with individual pricing, status and settings.</p>
-                </div>
+<!-- FEATURES BLOCKS -->
+<section class="features">
+  <div class="feat">
+    <div class="ico"><i class="fas fa-lock"></i></div>
+    <div class="id">FEAT // 001</div>
+    <h3>QUANTUM CIPHER</h3>
+    <p>AES-256 + RC4 + XXTEA layered encryption. Zero-knowledge proof for every handshake.</p>
+  </div>
+  <div class="feat">
+    <div class="ico" style="background:linear-gradient(135deg, var(--cy-magenta,#ff2bd6), #ff5555)"><i class="fas fa-bolt"></i></div>
+    <div class="id">FEAT // 002</div>
+    <h3>INSTANT FORGE</h3>
+    <p>Generate license keys in &lt;120ms. Bulk forge up to 10,000/sec. Hardware-id binding.</p>
+  </div>
+  <div class="feat">
+    <div class="ico" style="background:linear-gradient(135deg, var(--cy-green,#39ff14), var(--cy-cyan,#00f5ff))"><i class="fas fa-eye"></i></div>
+    <div class="id">FEAT // 003</div>
+    <h3>OMNI MONITOR</h3>
+    <p>Real-time loader pipeline. Track every activation, HWID, expiry across 5 global nodes.</p>
+  </div>
+  <div class="feat">
+    <div class="ico" style="background:linear-gradient(135deg, #ffb800, var(--cy-magenta,#ff2bd6))"><i class="fas fa-shield-virus"></i></div>
+    <div class="id">FEAT // 004</div>
+    <h3>NEURAL GUARD</h3>
+    <p>AI threat detector. Auto-bans crackers, replays, bots. 47k+ patterns learned.</p>
+  </div>
+</section>
 
-                <div class="feature-card p-7 rounded-2xl transition-all duration-300">
-                    <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-violet-500/20 to-purple-500/20 flex items-center justify-center mb-5 shadow-sm">
-                        <i class="fas fa-code text-2xl text-violet-300"></i>
-                    </div>
-                    <h3 class="text-xl font-bold mb-3 text-white">API Integration</h3>
-                    <p class="text-slate-300 text-sm leading-relaxed">RESTful API for seamless integration with your applications, launchers and tools.</p>
-                </div>
-            </div>
-        </div>
-    </section>
+<!-- FOOTER -->
+<div class="footer-line">
+  <span class="x">SX2.LADOR.MAINFRAME</span> // BUILD 2026.06.<?= rand(100,999) ?> // © <?= date('Y') ?> // ALL UPLINKS ENCRYPTED
+</div>
 
-    <!-- Additional Premium CTA with soft design -->
-    <section class="py-16 px-6">
-        <div class="max-w-5xl mx-auto glass-card rounded-3xl p-8 md:p-12 text-center border border-indigo-500/20 backdrop-blur-xl">
-            <div class="flex flex-col md:flex-row items-center justify-between gap-8">
-                <div class="text-left md:text-left">
-                    <h3 class="text-2xl md:text-3xl font-bold text-white mb-2">Ready to scale your license system?</h3>
-                    <p class="text-slate-300">Join SX2 LADOR today and experience enterprise security with zero hassle.</p>
-                </div>
-                <a href="<?= base_url('login') ?>" class="glow-btn px-8 py-3.5 rounded-xl font-bold flex items-center gap-2 transition-all whitespace-nowrap">
-                    Get Started <i class="fas fa-arrow-right ml-1 group-hover:translate-x-1 transition"></i>
-                </a>
-            </div>
-        </div>
-    </section>
+<script>
+  // boot log animation
+  (function(){
+    var log = document.getElementById('bootlog');
+    var lines = [
+      {c:'cy',  t:'> sx2.lador mainframe v2.6.0 // build 2026.06.<?= rand(100, 999) ?>'},
+      {c:'gn',  t:'[ok] kernel.unlock ........................ <span class="ok">PASS</span>'},
+      {c:'gn',  t:'[ok] mounting /vault/keys ................ 8932 entries'},
+      {c:'cy',  t:'[..] initializing neural net link ........ <span class="gn">DONE</span>'},
+      {c:'',    t:'[..] handshake with NODE.01 :: 12ms'},
+      {c:'gn',  t:'[ok] cipher subsystem :: AES-256/RC4 :: ARMED'},
+      {c:'am',  t:'[wn] firewall .................. 47 packets dropped'},
+      {c:'cy',  t:'[..] uplink stabilizing .................. <span class="gn">99.97%</span>'},
+      {c:'gn',  t:'[ok] ALL SYSTEMS NOMINAL :: entering control grid'},
+      {c:'mg',  t:'> awaiting operator handshake ............ <span style="background:var(--cy-cyan,#00f5ff);color:#000;padding:0 4px;animation:bk 1s infinite">▮ READY</span>'},
+    ];
+    var i = 0;
+    function pad(n){ return n<10?'0'+n:n; }
+    function ts(){ var d=new Date(); return pad(d.getHours())+':'+pad(d.getMinutes())+':'+pad(d.getSeconds()); }
+    var iv = setInterval(function(){
+      if(i >= lines.length){
+        clearInterval(iv); return;
+      }
+      var p = lines[i++];
+      var el = document.createElement('div');
+      el.className = 'ln ' + p.c;
+      el.innerHTML = '<span style="color:#3a5d68">'+ts()+'</span> '+p.t;
+      log.appendChild(el);
+    }, 320);
+  })();
 
-    <!-- Footer -->
-    <footer class="py-12 px-6 border-t border-white/5 mt-auto bg-black/10">
-        <div class="max-w-6xl mx-auto">
-            <div class="flex flex-col md:flex-row items-center justify-between gap-6">
-                <div class="flex items-center gap-3">
-                    <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-md">
-                        <i class="fas fa-bolt text-white text-sm"></i>
-                    </div>
-                    <span class="font-bold text-white tracking-tight">SX2 LADOR</span>
-                    <span class="text-xs text-slate-500 hidden md:inline-block ml-2">|</span>
-                    <span class="text-xs text-slate-400 hidden md:inline-block">Premium License Infrastructure</span>
-                </div>
-
-                <div class="flex items-center gap-7 text-sm text-slate-300">
-                    <a href="<?= base_url('login') ?>" class="hover:text-white transition-all hover:scale-105 inline-block">Login</a>
-                    <!-- Footer link also Getkey.php matching original exactly -->
-                    <a href="<?= base_url('Getkey.php') ?>" class="hover:text-white transition-all hover:scale-105 inline-block">Free Keys</a>
-                    <a href="https://t.me/VIPTEAM08" target="_blank" class="hover:text-white transition-all flex items-center gap-1.5 hover:scale-105 inline-block">
-                        <i class="fab fa-telegram"></i> Contact
-                    </a>
-                </div>
-
-                <div class="text-xs text-slate-400 font-mono">
-                    © <?= date('Y') ?> SX2 LADOR — All rights reserved.
-                </div>
-            </div>
-        </div>
-    </footer>
-
-    <!-- subtle smoothness script (optional) -->
-    <script>
-        (function() {
-            // Just smooth console greet, no heavy UI interference
-            console.log("SX2 LADOR | Premium & Smooth UI — Getkey.php ready");
-        })();
-    </script>
+  // clock
+  (function(){
+    var el = document.getElementById('clock');
+    function pad(n){ return n<10?'0'+n:n; }
+    function tick(){
+      var d = new Date();
+      el.textContent = pad(d.getHours())+':'+pad(d.getMinutes())+':'+pad(d.getSeconds())+' UTC';
+    }
+    tick(); setInterval(tick, 1000);
+  })();
+</script>
 </body>
 </html>
