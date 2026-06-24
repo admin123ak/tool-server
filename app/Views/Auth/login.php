@@ -1,257 +1,389 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>Login | SX2 LADOR — Secure Access</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title><?= BASE_NAME ?? 'SX2' ?> // ACCESS</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<?= link_tag('assets/css/cyberpunk.css') ?>
+<style>
+  body{ background:#03040a; color:#cfe7ee; font-family:'Share Tech Mono',monospace; overflow:hidden; min-height:100vh; }
+  /* Background: ASCII rain + grid */
+  .bg-grid{
+    position:fixed; inset:0; z-index:0;
+    background:
+      linear-gradient(rgba(0,245,255,.05) 1px,transparent 1px) 0 0/50px 50px,
+      linear-gradient(90deg,rgba(0,245,255,.05) 1px,transparent 1px) 0 0/50px 50px,
+      radial-gradient(circle at 30% 30%, rgba(0,245,255,.15), transparent 60%),
+      radial-gradient(circle at 70% 70%, rgba(255,43,214,.12), transparent 60%);
+  }
+  .ascii-col{
+    position:fixed; top:0; bottom:0; width:120px; pointer-events:none; z-index:1;
+    font:11px/14px 'Share Tech Mono',monospace; color:rgba(57,255,20,.4);
+    white-space:pre; overflow:hidden;
+  }
+  .ascii-col.l{ left:20px; }
+  .ascii-col.r{ right:20px; }
+  .ascii-col span{ display:block; animation: fall linear infinite; }
+  @keyframes fall{ from{ transform:translateY(-100%) } to{ transform:translateY(100vh) } }
 
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
+  /* MAIN LAYOUT — SPLIT 2 PANEL */
+  .split{
+    position:relative; z-index:5; height:100vh;
+    display:grid; grid-template-columns: 1.2fr 1fr; gap:0;
+  }
+  /* LEFT: TERMINAL log */
+  .term-side{
+    background:linear-gradient(135deg, rgba(0,8,16,.95), rgba(0,4,12,.95));
+    border-right:1px solid rgba(0,245,255,.3);
+    padding:32px 40px; overflow:hidden; position:relative;
+    display:flex; flex-direction:column;
+  }
+  .term-side::before{
+    content:""; position:absolute; left:0; top:0; bottom:0; width:4px;
+    background:linear-gradient(180deg, var(--cy-cyan,#00f5ff), var(--cy-magenta,#ff2bd6));
+    box-shadow:0 0 12px var(--cy-cyan,#00f5ff);
+  }
+  .term-head{
+    font:900 28px 'Orbitron',sans-serif;
+    background:linear-gradient(90deg,#fff,var(--cy-cyan,#00f5ff));
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+    letter-spacing:.05em;
+  }
+  .term-sub{ color:#7fb3c2; font:12px 'Share Tech Mono',monospace; letter-spacing:.25em; margin-top:6px; }
+  .term-log{
+    margin-top:24px; flex:1;
+    font:13px/1.85 'Share Tech Mono',monospace; color:#cfe7ee;
+    border:1px solid rgba(0,245,255,.2); padding:18px; background:rgba(0,0,0,.4);
+    overflow:hidden; position:relative;
+  }
+  .term-log::before{
+    content:""; position:absolute; left:0; right:0; height:2px;
+    background:linear-gradient(90deg, transparent, var(--cy-cyan,#00f5ff), transparent);
+    animation: scan 3s linear infinite;
+  }
+  @keyframes scan{ from{top:0} to{top:100%} }
+  .term-log .ln{ opacity:0; animation: showln .25s forwards; }
+  @keyframes showln{ to{opacity:1} }
+  .term-log .gn{ color:var(--cy-green,#39ff14); }
+  .term-log .cy{ color:var(--cy-cyan,#00f5ff); }
+  .term-log .mg{ color:var(--cy-magenta,#ff2bd6); }
+  .term-log .am{ color:#ffb800; }
+  .term-cursor{
+    display:inline-block; width:8px; height:14px; background:var(--cy-cyan,#00f5ff);
+    animation: bk 1s infinite; vertical-align:middle; margin-left:4px;
+  }
+  @keyframes bk{ 50%{opacity:0} }
 
-    <!-- Font Awesome -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" rel="stylesheet" crossorigin="anonymous">
+  /* RIGHT: AUTH KEYPAD */
+  .auth-side{
+    background:linear-gradient(225deg, rgba(0,8,16,.7), rgba(0,4,12,.95));
+    display:flex; align-items:center; justify-content:center; padding:40px;
+    position:relative;
+  }
+  /* Decorative corner brackets on screen */
+  .auth-side::before,.auth-side::after{
+    content:""; position:absolute; width:60px; height:60px;
+    border:2px solid var(--cy-cyan,#00f5ff);
+    filter: drop-shadow(0 0 6px var(--cy-cyan,#00f5ff));
+  }
+  .auth-side::before{ top:20px; right:20px; border-left:0; border-bottom:0; }
+  .auth-side::after{ bottom:20px; left:20px; border-right:0; border-top:0;
+    border-color: var(--cy-magenta,#ff2bd6); filter: drop-shadow(0 0 6px var(--cy-magenta,#ff2bd6));
+  }
+  .keypad{ width:100%; max-width:440px; position:relative; }
 
-    <!-- Google Fonts: Inter & Space Grotesk -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  /* Hex shield logo */
+  .shield-hex{
+    width:120px; height:120px; margin:0 auto 24px; position:relative;
+  }
+  .shield-hex .body{
+    position:absolute; inset:0;
+    clip-path: polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%);
+    background: linear-gradient(135deg, var(--cy-cyan,#00f5ff), var(--cy-magenta,#ff2bd6));
+    display:flex; align-items:center; justify-content:center;
+    box-shadow: 0 0 40px var(--cy-cyan,#00f5ff), 0 0 80px rgba(255,43,214,.4);
+  }
+  .shield-hex .ring{
+    position:absolute; inset:-12px;
+    clip-path: polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%);
+    background: var(--cy-cyan,#00f5ff);
+    z-index:-1;
+    animation: pulse-ring 2s infinite;
+  }
+  @keyframes pulse-ring{
+    0%{ opacity:.6; transform:scale(1) }
+    100%{ opacity:0; transform:scale(1.3) }
+  }
+  .shield-hex i{ font-size:48px; color:#000; }
 
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
-                        mono: ['Space Grotesk', 'monospace'],
-                    },
-                    colors: {
-                        accent: {
-                            DEFAULT: '#8b5cf6',
-                            hover: '#7c3aed',
-                            light: '#a78bfa',
-                        }
-                    }
-                }
-            }
-        }
-    </script>
+  .auth-title{
+    font:900 22px 'Orbitron',sans-serif;
+    background:linear-gradient(90deg,var(--cy-cyan,#00f5ff),var(--cy-magenta,#ff2bd6));
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+    text-align:center; letter-spacing:.1em;
+  }
+  .auth-subt{ text-align:center; color:#7fb3c2; font:11px 'Share Tech Mono',monospace; letter-spacing:.3em; margin:8px 0 28px; }
 
-    <style>
-        /* Fixed: body background same premium style as homepage */
-        body {
-            background-color: #0b0f1c;
-            background-image: 
-                radial-gradient(circle at 10% 10%, rgba(99, 102, 241, 0.1) 0%, transparent 50%),
-                radial-gradient(circle at 90% 70%, rgba(139, 92, 246, 0.12) 0%, transparent 55%),
-                radial-gradient(circle at 40% 90%, rgba(236, 72, 153, 0.06) 0%, transparent 45%);
-            background-attachment: fixed;
-            color: #f1f5f9;
-            font-family: 'Inter', sans-serif;
-            -webkit-font-smoothing: antialiased;
-        }
-        
-        /* FIXED: glass-card with proper background variable defined */
-        .glass-card {
-            background: rgba(15, 23, 42, 0.65);
-            backdrop-filter: blur(18px);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            transition: all 0.3s ease;
-        }
-        
-        /* refined login input — smooth & premium */
-        .login-input {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.12);
-            color: #f8fafc;
-            transition: all 0.25s ease-in-out;
-            font-weight: 500;
-        }
-        
-        .login-input:focus {
-            background: rgba(255, 255, 255, 0.09);
-            border-color: #8b5cf6;
-            outline: none;
-            box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.25);
-        }
-        
-        /* input monospace for dots and text consistency */
-        .login-input.font-mono {
-            letter-spacing: 0.3px;
-        }
-        
-        /* glow button improved */
-        .glow-btn {
-            background: linear-gradient(105deg, #7c3aed 0%, #a855f7 100%);
-            box-shadow: 0 6px 18px rgba(124, 58, 237, 0.25);
-            transition: all 0.3s cubic-bezier(0.2, 0.9, 0.4, 1.1);
-            border: none;
-        }
-        
-        .glow-btn:hover {
-            box-shadow: 0 10px 28px rgba(139, 92, 246, 0.35);
-            transform: translateY(-2px);
-        }
-        
-        /* custom scrollbar */
-        ::-webkit-scrollbar {
-            width: 5px;
-        }
-        ::-webkit-scrollbar-track {
-            background: #0f172a;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #8b5cf6;
-            border-radius: 12px;
-        }
-        
-        /* selection smooth */
-        ::selection {
-            background: rgba(139, 92, 246, 0.4);
-            color: white;
-        }
-        
-        /* extra animation for card fade-in */
-        .fade-up {
-            animation: fadeUp 0.5s ease-out;
-        }
-        
-        @keyframes fadeUp {
-            from {
-                opacity: 0;
-                transform: translateY(15px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-    </style>
+  /* INPUT row HUD style */
+  .field{
+    display:flex; align-items:center; margin-bottom:14px;
+    border:1px solid rgba(0,245,255,.3); background:rgba(0,8,16,.7);
+    transition: all .2s;
+  }
+  .field:focus-within{
+    border-color: var(--cy-cyan,#00f5ff);
+    box-shadow: 0 0 0 1px var(--cy-cyan,#00f5ff), 0 0 16px rgba(0,245,255,.3);
+    background:rgba(0,245,255,.04);
+  }
+  .field .ico{
+    width:48px; display:flex; align-items:center; justify-content:center;
+    background:rgba(0,245,255,.08); color:var(--cy-cyan,#00f5ff); height:50px;
+    border-right:1px solid rgba(0,245,255,.3);
+  }
+  .field .lbl{
+    flex:0 0 110px; padding:0 12px; color:var(--cy-cyan,#00f5ff);
+    font:700 10px 'Share Tech Mono',monospace; letter-spacing:.2em;
+    border-right:1px dashed rgba(0,245,255,.3);
+  }
+  .field input{
+    flex:1; background:transparent !important; border:0 !important; outline:0;
+    color:#fff; padding:0 14px; height:50px;
+    font:14px 'Share Tech Mono',monospace; letter-spacing:.1em;
+  }
+  .field input::placeholder{ color:#3a5d68; letter-spacing:.15em; }
+  .field .eye{
+    width:48px; display:flex; align-items:center; justify-content:center;
+    color:#7fb3c2; cursor:pointer; height:50px; transition: color .2s;
+  }
+  .field .eye:hover{ color: var(--cy-cyan,#00f5ff); }
+
+  /* BIG BUTTON */
+  .auth-btn{
+    width:100%; padding:16px;
+    background:linear-gradient(135deg,var(--cy-cyan,#00f5ff),var(--cy-magenta,#ff2bd6));
+    color:#000; border:0; cursor:pointer;
+    font:900 14px 'Orbitron',sans-serif; letter-spacing:.3em;
+    box-shadow: 0 0 24px rgba(0,245,255,.4);
+    clip-path: polygon(12px 0, 100% 0, calc(100% - 12px) 100%, 0 100%);
+    margin-top:18px; transition: all .2s;
+  }
+  .auth-btn:hover{ filter: brightness(1.1); box-shadow: 0 0 36px var(--cy-cyan,#00f5ff); transform: translateY(-1px); }
+  .auth-btn:active{ transform: translateY(0); }
+
+  /* Status row */
+  .status-row{
+    display:flex; justify-content:space-between; font:10px 'Share Tech Mono',monospace;
+    color:#7fb3c2; letter-spacing:.2em; margin-top:24px;
+    padding-top:16px; border-top:1px dashed rgba(0,245,255,.2);
+  }
+  .status-row .dot{
+    display:inline-block; width:6px; height:6px; border-radius:50%;
+    background:var(--cy-green,#39ff14); box-shadow:0 0 8px var(--cy-green,#39ff14);
+    animation: bk 1.4s infinite; margin-right:4px;
+  }
+
+  /* Footer links */
+  .foot-link{
+    text-align:center; margin-top:18px;
+    font:11px 'Share Tech Mono',monospace; letter-spacing:.15em;
+  }
+  .foot-link a{ color:var(--cy-cyan,#00f5ff); text-decoration:none; padding:0 10px; }
+  .foot-link a:hover{ text-shadow: 0 0 8px var(--cy-cyan,#00f5ff); }
+  .foot-link span{ color:#3a5d68; }
+
+  /* Alerts */
+  .alert{
+    padding:12px 16px; margin-bottom:18px; border:1px solid;
+    font:12px 'Share Tech Mono',monospace; letter-spacing:.08em;
+    position:relative; padding-left:36px;
+  }
+  .alert::before{
+    content:"!"; position:absolute; left:12px; top:50%; transform:translateY(-50%);
+    width:18px; height:18px; border-radius:50%; display:flex; align-items:center; justify-content:center;
+    font:900 12px monospace;
+  }
+  .alert-danger{ border-color:var(--cy-magenta,#ff2bd6); color:var(--cy-magenta,#ff2bd6); background:rgba(255,43,214,.06); }
+  .alert-danger::before{ background:var(--cy-magenta,#ff2bd6); color:#000; }
+  .alert-success{ border-color:var(--cy-green,#39ff14); color:var(--cy-green,#39ff14); background:rgba(57,255,20,.06); }
+  .alert-success::before{ background:var(--cy-green,#39ff14); color:#000; content:"✓"; }
+
+  /* Responsive */
+  @media (max-width: 900px){
+    .split{ grid-template-columns: 1fr; height:auto; min-height:100vh; }
+    .term-side{ display:none; }
+  }
+</style>
 </head>
-<body class="min-h-screen flex items-center justify-center p-5">
+<body>
 
-    <div class="w-full max-w-md fade-up">
-        <!-- Cyberpunk Auth Header -->
-        <div class="text-center mb-8">
-            <div class="w-20 h-20 mx-auto mb-5 rounded flex items-center justify-center shadow-xl transition-transform hover:scale-105 duration-300"
-                 style="background:linear-gradient(135deg,var(--cy-cyan,#00f5ff),var(--cy-magenta,#ff2bd6));box-shadow:0 0 24px rgba(0,245,255,.5),0 0 48px rgba(255,43,214,.3)">
-                <i class="fas fa-shield-alt text-4xl text-black"></i>
-            </div>
-            <h1 class="text-3xl font-extrabold bg-gradient-to-r from-white to-slate-300 bg-clip-text text-transparent tracking-tight" data-text="// AUTH.REQUIRED" style="font-family:'Orbitron',sans-serif">// AUTH.REQUIRED</h1>
-            <p class="text-slate-400 mt-2 text-sm" style="font-family:'Share Tech Mono',monospace">&gt; Connect to SX2.LADOR mainframe</p>
-        </div>
+<div class="bg-grid"></div>
+<div class="ascii-col l" id="asciiL"></div>
+<div class="ascii-col r" id="asciiR"></div>
 
-        <!-- Login Card — FIXED: using glass-card class instead of broken bg-slate-800 -->
-        <div class="glass-card rounded-3xl p-8 shadow-2xl border border-white/10">
-            
-            <!-- Flash Messages -->
-            <?php if (session()->getFlashdata('msgDanger')) : ?>
-                <div class="bg-red-500/10 border border-red-500/20 text-red-300 px-4 py-3 rounded-xl mb-6 text-sm flex items-center gap-2 backdrop-blur-sm">
-                    <i class="fas fa-exclamation-triangle"></i>
-                    <span><?= session()->getFlashdata('msgDanger') ?></span>
-                </div>
-            <?php endif; ?>
+<div class="split">
 
-            <?php if (session()->getFlashdata('msgSuccess')) : ?>
-                <div class="bg-emerald-500/10 border border-emerald-500/20 text-emerald-300 px-4 py-3 rounded-xl mb-6 text-sm flex items-center gap-2 backdrop-blur-sm">
-                    <i class="fas fa-check-circle"></i>
-                    <span><?= session()->getFlashdata('msgSuccess') ?></span>
-                </div>
-            <?php endif; ?>
-
-            <?= form_open() ?>
-                
-                <!-- CRITICAL FIX: IP hidden input now uses REMOTE_ADDR (real IP address) instead of USER_AGENT -->
-                <input type="hidden" name="ip" value="<?= $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0' ?>">
-                <input type="hidden" name="stay_log" value="yes">
-
-                <!-- Username Field -->
-                <div class="mb-5">
-                    <div class="relative">
-                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                            <i class="fas fa-user-circle text-slate-400 text-md"></i>
-                        </div>
-                        <input type="text" name="username" class="login-input w-full pl-11 pr-4 py-3.5 rounded font-medium placeholder:text-slate-500" placeholder="OPERATOR_ID" required autocomplete="off" style="font-family:'Share Tech Mono',monospace;letter-spacing:.1em">
-                    </div>
-                    <?php if ($validation->hasError('username')) : ?>
-                        <p class="text-rose-400 text-xs mt-2 ml-1 flex items-center gap-1"><i class="fas fa-circle-exclamation text-[10px]"></i> <?= $validation->getError('username') ?></p>
-                    <?php endif; ?>
-                </div>
-
-                <!-- Password Field with Toggle & Monospace for Dots -->
-                <div class="mb-8">
-                    <div class="relative">
-                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                            <i class="fas fa-lock text-slate-400"></i>
-                        </div>
-                        <!-- Added font-mono class for consistent dots/text sizing -->
-                        <input type="password" name="password" id="password" class="login-input w-full pl-11 pr-11 py-3.5 rounded font-mono font-medium placeholder:text-slate-500 tracking-wide" placeholder="•••• ACCESS_CODE ••••" required style="font-family:'Share Tech Mono',monospace">
-                        <button type="button" onclick="togglePassword()" class="absolute inset-y-0 right-0 pr-4 flex items-center text-slate-400 hover:text-slate-200 transition cursor-pointer">
-                            <i class="fas fa-eye" id="eyeIcon"></i>
-                        </button>
-                    </div>
-                    <?php if ($validation->hasError('password')) : ?>
-                        <p class="text-rose-400 text-xs mt-2 ml-1 flex items-center gap-1"><i class="fas fa-circle-exclamation text-[10px]"></i> <?= $validation->getError('password') ?></p>
-                    <?php endif; ?>
-                </div>
-
-                <!-- Cyberpunk submit -->
-                <button type="submit" class="glow-btn w-full py-3.5 rounded text-white font-bold text-lg tracking-widest flex items-center justify-center gap-2 transition-all duration-300 group" style="font-family:'Orbitron',sans-serif">
-                    <i class="fas fa-terminal text-sm group-hover:translate-x-0.5 transition-transform"></i>
-                    AUTHORIZE ▸
-                </button>
-
-            <?= form_close() ?>
-            
-            <!-- Extra subtle divider (optional smoothness) -->
-            <div class="relative my-7">
-                <div class="absolute inset-0 flex items-center">
-                    <div class="w-full border-t border-white/10"></div>
-                </div>
-                <div class="relative flex justify-center text-xs">
-                    <span class="bg-[rgba(15,23,42,0.5)] px-3 text-slate-400 backdrop-blur-sm">secure access</span>
-                </div>
-            </div>
-            
-            <!-- Quick tip line -->
-            <div class="text-center text-xs text-slate-500 flex items-center justify-center gap-1.5">
-                <i class="fas fa-shield-heart text-indigo-400 text-[11px]"></i>
-                <span>SYSTEM SX2 LADOR</span>
-            </div>
-        </div>
-
-        <!-- Footer Links with smooth hover -->
-        <div class="text-center mt-8">
-            <p class="text-slate-400 text-sm mb-2 flex items-center justify-center gap-1.5">
-                <span class="relative flex h-2 w-2">
-                    <span class="animate-ping absolute h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                    <span class="relative rounded-full h-2 w-2 bg-emerald-500"></span>
-                </span>
-                Buy account? 
-                <a href="https://t.me/Sa_Nso" target="_blank" class="text-indigo-300 hover:text-white transition-all underline decoration-indigo-500/30 underline-offset-4 font-medium">Contact Support</a>
-            </p>
-            <p class="text-slate-600 text-xs tracking-wide">
-                © <?= date('Y') ?> SX2 LADOR — Premium License System
-            </p>
-        </div>
+  <!-- ===== LEFT: TERMINAL ===== -->
+  <aside class="term-side">
+    <div>
+      <div class="term-head">SX2.LADOR</div>
+      <div class="term-sub">// MAINFRAME // AUTH NODE v2.6</div>
     </div>
 
-    <!-- Toggle Password JavaScript (smooth & refined) -->
-    <script>
-        function togglePassword() {
-            const passwordInput = document.getElementById('password');
-            const eyeIcon = document.getElementById('eyeIcon');
-            
-            if (passwordInput.type === 'password') {
-                passwordInput.type = 'text';
-                eyeIcon.classList.remove('fa-eye');
-                eyeIcon.classList.add('fa-eye-slash');
-            } else {
-                passwordInput.type = 'password';
-                eyeIcon.classList.remove('fa-eye-slash');
-                eyeIcon.classList.add('fa-eye');
-            }
-        }
-        
-        // optional: add small console greeting
-        console.log("SX2 LADOR Login — premium interface ready (fixed IP & glass card)");
-    </script>
+    <div class="term-log" id="termlog"></div>
+
+    <div style="margin-top:auto; font:10px 'Share Tech Mono',monospace; color:#3a5d68; letter-spacing:.2em">
+      <div>NODE: MAINFRAME.01</div>
+      <div>REGION: ASIA-PACIFIC</div>
+      <div>BUILD: 2026.06.<?= rand(100, 999) ?></div>
+      <div style="color:var(--cy-green,#39ff14); margin-top:8px">● UPLINK STABLE :: 99.97%</div>
+    </div>
+  </aside>
+
+  <!-- ===== RIGHT: AUTH ===== -->
+  <main class="auth-side">
+    <div class="keypad">
+
+      <!-- HEX SHIELD LOGO -->
+      <div class="shield-hex">
+        <div class="ring"></div>
+        <div class="body"><i class="fas fa-shield-halved"></i></div>
+      </div>
+
+      <div class="auth-title">/ / A C C E S S _ G R A N T_</div>
+      <div class="auth-subt">[ AUTHENTICATE TO PROCEED ]</div>
+
+      <!-- FLASH -->
+      <?php if (session()->getFlashdata('msgDanger')) : ?>
+        <div class="alert alert-danger"><?= session()->getFlashdata('msgDanger') ?></div>
+      <?php endif; ?>
+      <?php if (session()->getFlashdata('msgSuccess')) : ?>
+        <div class="alert alert-success"><?= session()->getFlashdata('msgSuccess') ?></div>
+      <?php endif; ?>
+
+      <?= form_open() ?>
+        <input type="hidden" name="ip" value="<?= $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0' ?>">
+        <input type="hidden" name="stay_log" value="yes">
+
+        <!-- USERNAME field -->
+        <div class="field">
+          <div class="ico"><i class="fas fa-user-astronaut"></i></div>
+          <div class="lbl">OPER_ID</div>
+          <input type="text" name="username" placeholder="enter_callsign" required autocomplete="off">
+        </div>
+        <?php if ($validation->hasError('username')) : ?>
+          <div style="color:var(--cy-magenta,#ff2bd6);font:10px 'Share Tech Mono',monospace;margin:-8px 0 8px 14px">▸ <?= $validation->getError('username') ?></div>
+        <?php endif; ?>
+
+        <!-- PASSWORD field -->
+        <div class="field">
+          <div class="ico"><i class="fas fa-fingerprint"></i></div>
+          <div class="lbl">CIPHER</div>
+          <input type="password" id="password" name="password" placeholder="enter_passphrase" required>
+          <div class="eye" onclick="togglePassword()"><i class="fas fa-eye" id="eyeIcon"></i></div>
+        </div>
+        <?php if ($validation->hasError('password')) : ?>
+          <div style="color:var(--cy-magenta,#ff2bd6);font:10px 'Share Tech Mono',monospace;margin:-8px 0 8px 14px">▸ <?= $validation->getError('password') ?></div>
+        <?php endif; ?>
+
+        <!-- BUTTON -->
+        <button type="submit" class="auth-btn">▸ ENGAGE LINK ◂</button>
+
+      <?= form_close() ?>
+
+      <!-- Status -->
+      <div class="status-row">
+        <span><span class="dot"></span>SECURE.TLS</span>
+        <span>IP:<?= $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0' ?></span>
+        <span><span class="dot"></span>FW.ACTIVE</span>
+      </div>
+
+      <!-- Bottom links -->
+      <div class="foot-link">
+        <a href="<?= base_url('register') ?>">REGISTER</a>
+        <span>::</span>
+        <a href="<?= base_url('Getkey.php') ?>">GET_FREE_KEY</a>
+        <span>::</span>
+        <a href="<?= base_url() ?>">HOME</a>
+      </div>
+    </div>
+  </main>
+
+</div>
+
+<script>
+  function togglePassword(){
+    var p=document.getElementById('password'), e=document.getElementById('eyeIcon');
+    if(p.type==='password'){ p.type='text'; e.className='fas fa-eye-slash'; }
+    else{ p.type='password'; e.className='fas fa-eye'; }
+  }
+
+  // Terminal log streaming
+  (function(){
+    var term = document.getElementById('termlog');
+    var lines = [
+      {c:'cy', t:'[SYS] MAINFRAME.01 // boot sequence init'},
+      {c:'gn', t:'[OK]  cipher subsystem :: AES-256/RC4 ready'},
+      {c:'gn', t:'[OK]  /vault/keys mounted // 8932 entries'},
+      {c:'',   t:'[..]  scanning auth.endpoints ......'},
+      {c:'cy', t:'[INFO] firewall .................. UP'},
+      {c:'cy', t:'[INFO] honeypot trap ............. armed'},
+      {c:'gn', t:'[OK]  uplink to MAINFRAME stable'},
+      {c:'am', t:'[WAIT] awaiting operator handshake'},
+      {c:'',   t:'[..]  listening on :443/auth'},
+      {c:'mg', t:'[ALERT] 3 unauthorized probes rejected'},
+      {c:'cy', t:'[INFO] session token entropy :: 256-bit'},
+      {c:'gn', t:'[OK]  ready to accept credentials'},
+    ];
+    var i=0, prefix='';
+    function pad(n){ return n<10?'0'+n:n; }
+    function ts(){ var d=new Date(); return pad(d.getHours())+':'+pad(d.getMinutes())+':'+pad(d.getSeconds()); }
+    function step(){
+      if(i>=lines.length){
+        // loop: add random new log
+        var pool=[
+          {c:'cy', t:'[INFO] heartbeat :: 60s tick'},
+          {c:'',   t:'[..]  awaiting input'},
+          {c:'gn', t:'[OK]  link stable'},
+          {c:'am', t:'[WAIT] timeout in 300s'},
+        ];
+        var p = pool[Math.floor(Math.random()*pool.length)];
+        addLine(p.c, p.t);
+        return;
+      }
+      var p = lines[i++];
+      addLine(p.c, p.t);
+    }
+    function addLine(c, t){
+      var el = document.createElement('div');
+      el.className = 'ln ' + (c||'');
+      el.innerHTML = '<span style="color:#3a5d68">' + ts() + '</span> ' + t;
+      term.appendChild(el);
+      if(term.childElementCount > 18) term.removeChild(term.firstElementChild);
+      term.scrollTop = term.scrollHeight;
+    }
+    // start
+    var iv = setInterval(step, 280);
+    setTimeout(function(){ clearInterval(iv); setInterval(step, 1600); }, 4500);
+  })();
+
+  // ASCII rain
+  (function(){
+    var chars = '01ﾊﾐﾋｰｳｼﾅﾓﾆｻﾜﾂｵﾘｱﾎﾃﾏｹﾒｴｶｷﾑﾕﾗｾﾈｽﾀﾇﾍﾔﾜ#$%&*';
+    function fill(el){
+      var s='';
+      for(var i=0;i<60;i++) s += chars[Math.floor(Math.random()*chars.length)];
+      el.innerHTML = '';
+      var span = document.createElement('span');
+      span.textContent = s.split('').join('\n');
+      span.style.animationDuration = (8 + Math.random()*8)+'s';
+      span.style.animationDelay = '-' + (Math.random()*4)+'s';
+      el.appendChild(span);
+    }
+    fill(document.getElementById('asciiL'));
+    fill(document.getElementById('asciiR'));
+  })();
+</script>
 </body>
 </html>
