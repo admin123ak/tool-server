@@ -150,112 +150,37 @@
         }
     </style>
 </head>
-<body class="flex h-screen overflow-hidden text-sm bg-slate-900 blur-keys"> 
+<body class="text-sm" style="background:#03040a"> 
+<?= link_tag('assets/css/cyberpunk.css') ?>
+<!-- TOP BAR + TABS (cyberpunk) -->
+<header class="sys-bar px-6 py-3 border-b" style="border-color:rgba(0,245,255,.3);background:linear-gradient(180deg,rgba(0,8,16,.95),rgba(0,8,16,.6))">
+  <div class="flex items-center justify-between gap-6">
+    <div class="flex items-center gap-3">
+      <div style="width:40px;height:40px;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#00f5ff,#ff2bd6);clip-path:polygon(20% 0,80% 0,100% 50%,80% 100%,20% 100%,0 50%);box-shadow:0 0 16px #00f5ff"><i class="fas fa-shield-alt text-black"></i></div>
+      <div><div style="font:900 16px 'Orbitron',sans-serif;color:#00f5ff">SX2.LADOR</div><div style="font:9px 'Share Tech Mono',monospace;color:#7fb3c2;letter-spacing:.2em">// MAINFRAME.NODE.01</div></div>
+    </div>
+    <div class="flex items-center gap-3">
+      <div class="text-right"><div style="font:9px 'Share Tech Mono',monospace;color:#7fb3c2;letter-spacing:.2em">// CREDIT</div><div style="font:700 13px 'Share Tech Mono',monospace;color:#ffb800">$<?= number_format($user->saldo ?? 0, 2) ?></div></div>
+      <a href="<?= site_url('logout') ?>" style="display:flex;align-items:center;justify-content:center;width:40px;height:40px;border:1px solid #ff2bd6;color:#ff2bd6"><i class="fas fa-power-off"></i></a>
+    </div>
+  </div>
+  <nav class="nav-tabs mt-4" style="display:flex;border-bottom:1px solid rgba(0,245,255,.3)">
+    <a href="<?= site_url('dashboard') ?>" class="cybtab"><i class="fas fa-chart-pie mr-2"></i>DASH</a>
+    <a href="<?= site_url('keys') ?>" class="cybtab on"><i class="fas fa-key mr-2"></i>KEYS</a>
+    <a href="<?= site_url('keys/generate') ?>" class="cybtab"><i class="fas fa-bolt mr-2"></i>FORGE</a>
+    <?php if (isset($user->level) && $user->level == 1) : ?>
+    <a href="<?= site_url('admin/manage-users') ?>" class="cybtab"><i class="fas fa-users mr-2"></i>USERS</a>
+    <?php endif; ?>
+    <a href="<?= site_url('settings') ?>" class="cybtab "><i class="fas fa-cog mr-2"></i>SYS</a>
+  </nav>
+</header>
+<style>
+.cybtab{padding:9px 20px;color:#7fb3c2;text-decoration:none;font:700 11px 'Share Tech Mono',monospace;letter-spacing:.2em;border:1px solid transparent;border-bottom:0;clip-path:polygon(8px 0,100% 0,calc(100% - 8px) 100%,0 100%);margin-right:-6px;background:linear-gradient(180deg,transparent,rgba(0,245,255,.04))}
+.cybtab.on{color:#00f5ff;background:linear-gradient(180deg,rgba(0,245,255,.18),rgba(0,245,255,.05));border-color:#00f5ff;text-shadow:0 0 8px rgba(0,245,255,.6)}
+.cybtab:hover{color:#fff}
+</style>
+<main style="padding:16px 24px">
 
-    <!-- Mobile Sidebar Overlay -->
-    <div id="sidebarOverlay" class="fixed inset-0 bg-black/50 z-40 hidden md:hidden glass-overlay" onclick="toggleSidebar()"></div>
-
-    <!-- Sidebar -->
-    <aside id="sidebar" class="fixed inset-y-0 left-0 z-50 w-64 glass-panel transform -translate-x-full transition-transform duration-300 md:translate-x-0 md:static md:flex flex-col justify-between border-r-0">
-        <div>
-            <!-- Logo -->
-            <div class="h-20 flex items-center px-6 border-b border-white/5">
-                <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center mr-3 shadow-lg shadow-indigo-500/20">
-                    <i class="fas fa-shield-alt text-white text-sm"></i>
-                </div>
-                <div>
-                    <h1 class="font-bold text-white text-base leading-tight"> VIP TEAM</h1>
-                    <span class="text-[10px] text-slate-400 font-mono tracking-wider">LICENSE MANAGER</span>
-                </div>
-            </div>
-
-            <!-- Navigation -->
-            <nav class="mt-6 px-3 space-y-1">
-                <div class="px-3 mb-2 text-[10px] font-bold text-slate-500 uppercase tracking-wider">Main</div>
-                
-                <a href="<?= site_url('dashboard') ?>" class="sidebar-link flex items-center px-3 py-3 rounded-lg text-slate-300 group">
-                    <i class="fas fa-chart-pie w-6 text-center mr-2 text-slate-400 group-hover:text-indigo-400 transition-colors"></i>
-                    <span class="font-medium">Overview</span>
-                </a>
-                
-                <a href="<?= site_url('keys/generate') ?>" class="sidebar-link flex items-center px-3 py-3 rounded-lg text-slate-300 group">
-                    <i class="fas fa-bolt w-6 text-center mr-2 text-slate-400 group-hover:text-indigo-400 transition-colors"></i>
-                    <span class="font-medium">Generate Keys</span>
-                </a>
-                
-                <a href="<?= site_url('keys') ?>" class="sidebar-link active flex items-center px-3 py-3 rounded-lg text-slate-300 group">
-                    <i class="fas fa-key w-6 text-center mr-2 text-indigo-400"></i>
-                    <span class="font-medium">License Manager</span>
-                </a>
-
-                <div class="px-3 mt-6 mb-2 text-[10px] font-bold text-slate-500 uppercase tracking-wider">Configuration</div>
-                
-                <a href="<?= site_url('settings') ?>" class="sidebar-link flex items-center px-3 py-3 rounded-lg text-slate-300 group">
-                    <i class="fas fa-cog w-6 text-center mr-2 text-slate-400 group-hover:text-indigo-400 transition-colors"></i>
-                    <span class="font-medium">Settings</span>
-                </a>
-                
-                <?php if ($user->level == 1) : ?>
-                <a href="<?= site_url('admin/manage-users') ?>" class="sidebar-link flex items-center px-3 py-3 rounded-lg text-slate-300 group">
-                    <i class="fas fa-users w-6 text-center mr-2 text-slate-400 group-hover:text-indigo-400 transition-colors"></i>
-                    <span class="font-medium">Manage Users</span>
-                </a>
-                <a href="<?= site_url('admin/create-referral') ?>" class="sidebar-link flex items-center px-3 py-3 rounded-lg text-slate-300 group">
-                    <i class="fas fa-user-plus w-6 text-center mr-2 text-slate-400 group-hover:text-indigo-400 transition-colors"></i>
-                    <span class="font-medium">CREATE NEW USER</span>
-                </a>
-                <?php endif; ?>
-            </nav>
-        </div>
-
-        <!-- User Profile -->
-        <div class="p-4 border-t border-white/5">
-            <div class="flex items-center gap-3 mb-4 px-2">
-                <div class="w-10 h-10 rounded-full bg-slate-700 flex items-center justify-center text-white font-bold border border-white/10">
-                    <?= substr($user->username, 0, 1) ?>
-                </div>
-                <div class="overflow-hidden">
-                    <h4 class="text-white font-medium truncate"><?= $user->username ?></h4>
-                    <div class="flex items-center gap-1.5">
-                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-                        <span class="text-xs text-slate-400">Online</span>
-                    </div>
-                </div>
-            </div>
-            <a href="<?= site_url('logout') ?>" class="flex items-center justify-center w-full py-2.5 px-4 rounded-xl border border-red-500/20 bg-red-500/10 text-red-400 hover:bg-red-500/20 transition-all font-medium text-xs">
-                <i class="fas fa-power-off mr-2"></i> LOGOUT SESSION
-            </a>
-        </div>
-    </aside>
-
-    <!-- Main Content -->
-    <main class="flex-1 flex flex-col overflow-hidden relative">
-        <!-- Top Bar -->
-        <header class="h-20 flex items-center justify-between px-4 md:px-8 border-b border-white/5 bg-slate-900/50 backdrop-blur-sm z-10">
-            <div class="flex items-center gap-3">
-                <!-- Hamburger Menu -->
-                <button onclick="toggleSidebar()" class="md:hidden p-2 text-white hover:bg-white/10 rounded-lg transition-colors">
-                    <i class="fas fa-bars text-xl"></i>
-                </button>
-                
-                <div class="hidden md:block">
-                    <h2 class="text-2xl font-bold text-white" data-text="// KEY.VAULT" style="font-family:'Orbitron',sans-serif">// KEY.VAULT</h2>
-                    <p class="text-slate-400 text-xs mt-1" style="font-family:'Share Tech Mono',monospace">&gt; Manage &amp; monitor encrypted licenses</p>
-                </div>
-            </div>
-            
-            <div class="flex items-center gap-4">
-                <div class="glass-panel px-4 py-2 rounded-xl flex items-center gap-3">
-                    <div class="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center text-amber-500">
-                        <i class="fas fa-coins text-sm"></i>
-                    </div>
-                    <div class="text-right">
-                        <p class="text-[10px] text-slate-400 uppercase font-bold tracking-wider">Balance</p>
-                        <p class="text-white font-mono font-medium">₹<?= number_format($user->saldo, 2) ?></p>
-                    </div>
-                </div>
-            </div>
-        </header>
 
         <!-- Scrollable Content -->
         <div class="flex-1 overflow-y-auto p-4 md:p-8">
